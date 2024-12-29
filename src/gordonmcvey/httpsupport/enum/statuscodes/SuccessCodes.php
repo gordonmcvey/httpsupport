@@ -18,7 +18,7 @@
 
 declare(strict_types=1);
 
-namespace gordonmcvey\httpsupport\enum\httpcodes;
+namespace gordonmcvey\httpsupport\enum\statuscodes;
 
 enum SuccessCodes: int
 {

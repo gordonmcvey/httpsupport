@@ -18,23 +18,23 @@
 
 declare(strict_types=1);
 
-namespace gordonmcvey\httpsupport\test\unit\enum\httpcodes\factory;
+namespace gordonmcvey\httpsupport\test\unit\enum\factory;
 
-use gordonmcvey\httpsupport\enum\httpcodes\ClientErrorCodes;
-use gordonmcvey\httpsupport\enum\httpcodes\factory\HttpCodeFactory;
-use gordonmcvey\httpsupport\enum\httpcodes\InfoCodes;
-use gordonmcvey\httpsupport\enum\httpcodes\RedirectCodes;
-use gordonmcvey\httpsupport\enum\httpcodes\ServerErrorCodes;
-use gordonmcvey\httpsupport\enum\httpcodes\SuccessCodes;
+use gordonmcvey\httpsupport\enum\factory\StatusCodeFactory;
+use gordonmcvey\httpsupport\enum\statuscodes\ClientErrorCodes;
+use gordonmcvey\httpsupport\enum\statuscodes\InfoCodes;
+use gordonmcvey\httpsupport\enum\statuscodes\RedirectCodes;
+use gordonmcvey\httpsupport\enum\statuscodes\ServerErrorCodes;
+use gordonmcvey\httpsupport\enum\statuscodes\SuccessCodes;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
-class HttpCodeFactoryTest extends TestCase
+class StatusCodeFactoryTest extends TestCase
 {
     #[Test]
     public function itInstantiatesProperEnumsForInts(): void
     {
-        $factory = new HttpCodeFactory();
+        $factory = new StatusCodeFactory();
         $this->assertSame(InfoCodes::EARLY_HINTS, $factory->fromInt(InfoCodes::EARLY_HINTS->value));
         $this->assertSame(SuccessCodes::CREATED, $factory->fromInt(SuccessCodes::CREATED->value));
         $this->assertSame(RedirectCodes::FOUND, $factory->fromInt(RedirectCodes::FOUND->value));
@@ -45,7 +45,7 @@ class HttpCodeFactoryTest extends TestCase
     #[Test]
     public function itInstantiatesProperEnumsForInvalidInts(): void
     {
-        $factory = new HttpCodeFactory();
+        $factory = new StatusCodeFactory();
         $this->assertSame(ServerErrorCodes::INTERNAL_SERVER_ERROR, $factory->fromInt(99));
         $this->assertSame(ServerErrorCodes::INTERNAL_SERVER_ERROR, $factory->fromInt(199));
         $this->assertSame(ServerErrorCodes::INTERNAL_SERVER_ERROR, $factory->fromInt(299));
@@ -58,7 +58,7 @@ class HttpCodeFactoryTest extends TestCase
     #[Test]
     public function itInstantiatesProperlyFromErrors(): void
     {
-        $factory = new HttpCodeFactory();
+        $factory = new StatusCodeFactory();
         $this->assertSame(
             ClientErrorCodes::CONFLICT,
             $factory->fromThrowable(new \Exception(code: ClientErrorCodes::CONFLICT->value)),
@@ -72,7 +72,7 @@ class HttpCodeFactoryTest extends TestCase
     #[Test]
     public function itInstantiatesProperlyFromErrorsWithOutOfRangeCodes(): void
     {
-        $factory = new HttpCodeFactory();
+        $factory = new StatusCodeFactory();
         $this->assertSame(
             ServerErrorCodes::INTERNAL_SERVER_ERROR,
             $factory->fromThrowable(new \Exception(code: 0)),

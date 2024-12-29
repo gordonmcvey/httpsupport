@@ -20,7 +20,7 @@ declare(strict_types=1);
 
 namespace gordonmcvey\httpsupport\test\unit;
 
-use gordonmcvey\httpsupport\enum\httpcodes\SuccessCodes;
+use gordonmcvey\httpsupport\enum\statuscodes\SuccessCodes;
 use gordonmcvey\httpsupport\Response;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;

@@ -18,17 +18,12 @@
 
 declare(strict_types=1);
 
-namespace gordonmcvey\httpsupport\enum\httpcodes;
+namespace gordonmcvey\httpsupport\enum\statuscodes;
 
-enum RedirectCodes: int
+enum InfoCodes: int
 {
-    case MULTIPLE_CHOICES     = 300;
-    case MOVED_PERMANENTLY    = 301;
-    case FOUND                = 302;
-    case SEE_OTHER            = 303;
-    case NOT_MODIFIED         = 304;
-    case USE_PROXY            = 305;
-    case RESERVED             = 306; // Was Switch Proxy
-    case TEMPORARY_REDIRECT   = 307;
-    case PERMANENTLY_REDIRECT = 308; // RFC7238
+    case CONTINUE            = 100;
+    case SWITCHING_PROTOCOLS = 101;
+    case PROCESSING          = 102; // RFC2518
+    case EARLY_HINTS         = 103; // RFC8297
 }

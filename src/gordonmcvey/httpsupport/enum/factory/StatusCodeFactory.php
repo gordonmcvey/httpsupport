@@ -18,19 +18,19 @@
 
 declare(strict_types=1);
 
-namespace gordonmcvey\httpsupport\enum\httpcodes\factory;
+namespace gordonmcvey\httpsupport\enum\factory;
 
-use gordonmcvey\httpsupport\enum\httpcodes\ClientErrorCodes;
-use gordonmcvey\httpsupport\enum\httpcodes\InfoCodes;
-use gordonmcvey\httpsupport\enum\httpcodes\RedirectCodes;
-use gordonmcvey\httpsupport\enum\httpcodes\ServerErrorCodes;
-use gordonmcvey\httpsupport\enum\httpcodes\SuccessCodes;
+use gordonmcvey\httpsupport\enum\statuscodes\ClientErrorCodes;
+use gordonmcvey\httpsupport\enum\statuscodes\InfoCodes;
+use gordonmcvey\httpsupport\enum\statuscodes\RedirectCodes;
+use gordonmcvey\httpsupport\enum\statuscodes\ServerErrorCodes;
+use gordonmcvey\httpsupport\enum\statuscodes\SuccessCodes;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerInterface;
 use Throwable;
 use ValueError;
 
-class HttpCodeFactory implements LoggerAwareInterface
+class StatusCodeFactory implements LoggerAwareInterface
 {
     public function __construct(private ?LoggerInterface $logger = null)
     {
