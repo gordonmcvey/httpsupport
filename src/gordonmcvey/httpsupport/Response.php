@@ -37,6 +37,11 @@ class Response implements ResponseInterface, Stringable
 
     private const string CONTENT_TYPE_FORMAT = "%s; charset=%s";
 
+    /**
+     * According to RFC-7230 header line breaks must be \r\n
+     *
+     * @link https://datatracker.ietf.org/doc/html/rfc7230#page-19
+     */
     private const string NEWLINE = "\r\n";
 
     /**
@@ -138,12 +143,8 @@ class Response implements ResponseInterface, Stringable
 
     public function __tostring(): string
     {
-        $string = sprintf(
-            'HTTP/%s %s %s',
-            1.1,
-            $this->responseCode->value,
-            "Status text goes here"
-        ) . self::NEWLINE;
+        // @todo User-configurable HTTP version
+        $string = new ResponseStatusHeader(1.1, $this->responseCode,) . self::NEWLINE;
 
         foreach ($this->headers() as $key => $value) {
             $string .= sprintf("%s: %s", $key, $value) . self::NEWLINE;
