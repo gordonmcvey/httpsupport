@@ -18,29 +18,18 @@
 
 declare(strict_types=1);
 
-namespace gordonmcvey\httpsupport\utility;
+namespace gordonmcvey\httpsupport\test\unit\utility;
 
-final class HeaderKeyFormatter
+use gordonmcvey\httpsupport\utility\HeaderKeyFormatter;
+use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\TestCase;
+
+class HeaderKeyFormatterTest extends TestCase
 {
-    // Prevent instantiation
-    private function __construct()
+    #[Test]
+    public function itFormatsHeadersProperly(): void
     {
-    }
-
-    public static function ucwords(string $key): string
-    {
-        return str_replace(
-            " ",
-            "-",
-            ucwords(
-                strtolower(
-                    str_replace(
-                        "-",
-                        " ",
-                        $key
-                    )
-                )
-            )
-        );
+        $this->assertSame("Header-With-Hyphens", HeaderKeyFormatter::ucwords("header-with-hyphens"));
+        $this->assertSame("Header_with_underscores", HeaderKeyFormatter::ucwords("header_with_underscores"));
     }
 }
