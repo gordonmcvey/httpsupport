@@ -50,8 +50,9 @@ class Request implements RequestInterface, \JsonSerializable
      *
      * Note that if you pass in a Stringable, it will be evaluated on instantiation, not on the first call to
      * Request::body(), so it is recommended that you don't use Stringables that do a lot of heavy lifting, especially
-     * if you might not make use of the request body under some circumstances
+     * if not all requests will require you to access the request body
      *
+     * @param array<string, mixed> $requestParams
      * @param array<string, mixed> $queryParams
      * @param array<string, mixed> $postParams
      * @param array<string, mixed> $cookieParams
@@ -67,6 +68,7 @@ class Request implements RequestInterface, \JsonSerializable
      * @todo Handle Files
      */
     public function __construct(
+        private readonly array $requestParams,
         private readonly array $queryParams,
         private readonly array $postParams,
         private readonly array $cookieParams,
@@ -87,7 +89,10 @@ class Request implements RequestInterface, \JsonSerializable
 
     public function headers(): array
     {
-        null !== $this->headers || $this->headers = $this->extractHeaders();
+        if (null === $this->headers) {
+            $this->headers = $this->extractHeaders();
+        }
+
         return $this->headers;
     }
 
@@ -98,16 +103,16 @@ class Request implements RequestInterface, \JsonSerializable
 
     public function verb(): Verbs
     {
-        null !== $this->verb || $this->verb = Verbs::from($this->serverParam(self::REQUEST_METHOD));
+        if (null === $this->verb) {
+            $this->verb = Verbs::from($this->serverParam(self::REQUEST_METHOD));
+        }
+
         return $this->verb;
     }
 
-    /**
-     * @todo Respect the request_order/variables_order PHP config settings
-     */
     public function param(string $name, mixed $default = null): mixed
     {
-        return $this->queryParams[$name] ?? $this->postParams[$name] ?? $this->cookieParams[$name] ?? $default;
+        return $this->requestParams[$name] ?? $default;
     }
 
     public function queryParam(string $name, mixed $default = null): mixed
@@ -153,6 +158,7 @@ class Request implements RequestInterface, \JsonSerializable
 
     /**
      * @return array{
+     *     requestParams: array<string, mixed>,
      *     queryParams: array<string, mixed>,
      *     postParams: array<string, mixed>,
      *     cookieParams: array<string, mixed>,
@@ -163,11 +169,12 @@ class Request implements RequestInterface, \JsonSerializable
     public function jsonSerialize(): array
     {
         return [
-            "queryParams"  => $this->queryParams,
-            "postParams"   => $this->postParams,
-            "cookieParams" => $this->cookieParams,
-            "fileParams"   => $this->fileParams,
-            "serverParams" => $this->serverParams,
+            "requestParams" => $this->requestParams,
+            "queryParams"   => $this->queryParams,
+            "postParams"    => $this->postParams,
+            "cookieParams"  => $this->cookieParams,
+            "fileParams"    => $this->fileParams,
+            "serverParams"  => $this->serverParams,
         ];
     }
 
@@ -201,6 +208,7 @@ class Request implements RequestInterface, \JsonSerializable
     public static function fromSuperGlobals(): self
     {
         return new self(
+            $_REQUEST,
             $_GET,
             $_POST,
             $_COOKIE,
