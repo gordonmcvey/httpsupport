@@ -33,7 +33,7 @@ class Response implements ResponseInterface, Stringable
 
     private const string CONTENT_LENGTH = "Content-Length";
 
-    private const string DEFAULT_CONTENT_TYPE = "application/json";
+    private const string DEFAULT_CONTENT_TYPE = "text/plain";
 
     private const string CONTENT_TYPE_FORMAT = "%s; charset=%s";
 
@@ -144,7 +144,7 @@ class Response implements ResponseInterface, Stringable
     public function __tostring(): string
     {
         // @todo User-configurable HTTP version
-        $string = new ResponseStatusHeader(1.1, $this->responseCode,) . self::NEWLINE;
+        $string = new ResponseStatusHeader(1.1, $this->responseCode) . self::NEWLINE;
 
         foreach ($this->headers() as $key => $value) {
             $string .= sprintf("%s: %s", $key, $value) . self::NEWLINE;
