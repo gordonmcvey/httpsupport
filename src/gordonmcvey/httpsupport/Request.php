@@ -52,7 +52,6 @@ class Request implements RequestInterface, \JsonSerializable
      * Request::body(), so it is recommended that you don't use Stringables that do a lot of heavy lifting, especially
      * if not all requests will require you to access the request body
      *
-     * @param array<string, mixed> $requestParams
      * @param array<string, mixed> $queryParams
      * @param array<string, mixed> $postParams
      * @param array<string, mixed> $cookieParams
@@ -68,7 +67,6 @@ class Request implements RequestInterface, \JsonSerializable
      * @todo Handle Files
      */
     public function __construct(
-        private readonly array $requestParams,
         private readonly array $queryParams,
         private readonly array $postParams,
         private readonly array $cookieParams,
@@ -112,7 +110,9 @@ class Request implements RequestInterface, \JsonSerializable
 
     public function param(string $name, mixed $default = null): mixed
     {
-        return $this->requestParams[$name] ?? $default;
+        // We deliberately don't include Cookie params in this search because it would raise similar sexurity concerns to those
+        // that can happen with the $_REQUEST superglobal
+        return $this->queryParams[$name] ?? $this->postParams[$name] ?? $default;
     }
 
     public function queryParam(string $name, mixed $default = null): mixed
@@ -169,7 +169,6 @@ class Request implements RequestInterface, \JsonSerializable
     public function jsonSerialize(): array
     {
         return [
-            "requestParams" => $this->requestParams,
             "queryParams"   => $this->queryParams,
             "postParams"    => $this->postParams,
             "cookieParams"  => $this->cookieParams,
@@ -208,7 +207,6 @@ class Request implements RequestInterface, \JsonSerializable
     public static function fromSuperGlobals(): self
     {
         return new self(
-            $_REQUEST,
             $_GET,
             $_POST,
             $_COOKIE,

@@ -39,14 +39,14 @@ class RequestTest extends TestCase
             "ignore_this_header" => "quux",
         ];
 
-        $request = new Request([], [], [], [], [], $serverParams, null);
+        $request = new Request([], [], [], [], $serverParams, null);
         $this->assertSame("bar", $request->header("Header-Two"));
     }
 
     #[Test]
     public function itCanReturnDefaultValueForUnsetHeader(): void
     {
-        $request = new Request([], [], [], [], [], [], null);
+        $request = new Request([], [], [], [], [], null);
         $this->assertSame("MyDefault", $request->header("Header-One", "MyDefault"));
     }
 
@@ -60,7 +60,7 @@ class RequestTest extends TestCase
             "ignore_this_header" => "quux",
         ];
 
-        $request = new Request([], [], [], [], [], $serverParams, null);
+        $request = new Request([], [], [], [], $serverParams, null);
         $this->assertNull($request->header("Ignore-This-Header"));
     }
 
@@ -74,7 +74,7 @@ class RequestTest extends TestCase
             "ignore_this_header" => "quux",
         ];
 
-        $request = new Request([], [], [], [], [], $serverParams, null);
+        $request = new Request([], [], [], [], $serverParams, null);
         $this->assertNull($request->header("Header-Three"));
     }
 
@@ -92,7 +92,7 @@ class RequestTest extends TestCase
             "Header-Two" => "bar",
         ];
 
-        $request = new Request([], [], [], [], [], $serverParams, null);
+        $request = new Request([], [], [], [], $serverParams, null);
         $this->assertEquals($expectations, $request->headers());
     }
 
@@ -104,7 +104,7 @@ class RequestTest extends TestCase
             "REQUEST_METHOD" => $verb->value,
         ];
 
-        $request = new Request([], [], [], [], [], $serverParams, null);
+        $request = new Request([], [], [], [], $serverParams, null);
         $this->assertSame($verb, $request->verb());
     }
 
@@ -126,7 +126,7 @@ class RequestTest extends TestCase
             "REQUEST_METHOD" => "Farble warble garble"
         ];
 
-        $request = new Request([], [], [], [], [], $serverParams, null);
+        $request = new Request([], [], [], [], $serverParams, null);
         $this->expectException(\ValueError::class);
         $request->verb();
     }
@@ -139,7 +139,7 @@ class RequestTest extends TestCase
             "baz" => "quux",
         ];
 
-        $request = new Request($queryParams, $queryParams, [], [], [], [], null);
+        $request = new Request($queryParams, [], [], [], [], null);
         $this->assertSame("bar", $request->param("foo"));
         $this->assertSame("quux", $request->param("baz"));
         $this->assertNull($request->param("farble"));
@@ -151,7 +151,7 @@ class RequestTest extends TestCase
     #[Test]
     public function itCanReturnDefaultValueForUnsetQueryParam(): void
     {
-        $request = new Request([], [], [], [], [], [], null);
+        $request = new Request([], [], [], [], [], null);
         $this->assertSame("bar", $request->param("foo", "bar"));
         $this->assertSame("bar", $request->queryParam("foo", "bar"));
     }
@@ -164,7 +164,7 @@ class RequestTest extends TestCase
             "baz" => "quux",
         ];
 
-        $request = new Request($postParams, [], $postParams, [], [], [], null);
+        $request = new Request([], $postParams, [], [], [], null);
         $this->assertSame("bar", $request->param("foo"));
         $this->assertSame("quux", $request->param("baz"));
         $this->assertNull($request->param("farble"));
@@ -176,7 +176,7 @@ class RequestTest extends TestCase
     #[Test]
     public function itCanReturnDefaultValueForUnsetPostParam(): void
     {
-        $request = new Request([], [], [], [], [], [], null);
+        $request = new Request([], [], [], [], [], null);
         $this->assertSame("bar", $request->param("foo", "bar"));
         $this->assertSame("bar", $request->postParam("foo", "bar"));
     }
@@ -189,19 +189,21 @@ class RequestTest extends TestCase
             "baz" => "quux",
         ];
 
-        $request = new Request($cookieParams, [], [], $cookieParams, [], [], null);
-        $this->assertSame("bar", $request->param("foo"));
-        $this->assertSame("quux", $request->param("baz"));
-        $this->assertNull($request->param("farble"));
+        $request = new Request([], [], $cookieParams, [], [], null);
         $this->assertSame("bar", $request->cookieParam("foo"));
         $this->assertSame("quux", $request->cookieParam("baz"));
         $this->assertNull($request->cookieParam("farble"));
+
+        // Cookies shouldn't end up in general params
+        $this->assertNull($request->param("foo"));
+        $this->assertNull($request->param("baz"));
+        $this->assertNull($request->param("farble"));
     }
 
     #[Test]
     public function itCanReturnDefaultValueForUnsetCookieParam(): void
     {
-        $request = new Request([], [], [], [], [], [], null);
+        $request = new Request([], [], [], [], [], null);
         $this->assertSame("bar", $request->param("foo", "bar"));
         $this->assertSame("bar", $request->cookieParam("foo", "bar"));
     }
@@ -216,7 +218,7 @@ class RequestTest extends TestCase
             "ignore_this_header" => "quux",
         ];
 
-        $request = new Request([], [], [], [], [], $serverParams, null);
+        $request = new Request([], [], [], [], $serverParams, null);
         $this->assertSame("foo", $request->serverParam("HTTP_HEADER_ONE"));
         $this->assertSame("bar", $request->serverParam("HTTP_HEADER_TWO"));
         $this->assertSame("baz", $request->serverParam("http_header_three"));
@@ -226,7 +228,7 @@ class RequestTest extends TestCase
     #[Test]
     public function itCanReturnDefaultValueForUnsetServerParam(): void
     {
-        $request = new Request([], [], [], [], [], [], null);
+        $request = new Request([], [], [], [], [], null);
         $this->assertSame("bar", $request->serverParam("foo", "bar"));
     }
 
@@ -247,6 +249,7 @@ class RequestTest extends TestCase
             "param2" => "postValue2",
             "param5" => "postValue5",
         ];
+        // Cookies should have no bearing on param()
         $cookieParams = [
             "param1" => "cookieValue1",
             "param2" => "cookieValue2",
@@ -254,22 +257,20 @@ class RequestTest extends TestCase
             "param6" => "cookieValue6",
         ];
 
-        // Merging the 3 param arrays in this order simulates $_REQUEST being populated in GPC order
         $request = new Request(
-            array_merge($cookieParams, $postParams, $queryParams),
             $queryParams,
             $postParams,
             $cookieParams,
             [],
             [],
-            null
+            null,
         );
         $this->assertSame("queryValue1", $request->param("param1", "default"));
         $this->assertSame("postValue2", $request->param("param2", "default"));
-        $this->assertSame("cookieValue3", $request->param("param3", "default"));
+        $this->assertSame("default", $request->param("param3", "default"));
         $this->assertSame("queryValue4", $request->param("param4", "default"));
         $this->assertSame("postValue5", $request->param("param5", "default"));
-        $this->assertSame("cookieValue6", $request->param("param6", "default"));
+        $this->assertSame("default", $request->param("param6", "default"));
         $this->assertSame("default", $request->param("param7", "default"));
     }
 
@@ -286,7 +287,7 @@ class RequestTest extends TestCase
             ],
         ];
 
-        $request = new Request([], [], [], [], $fileParams, [], null);
+        $request = new Request([], [], [], $fileParams, [], null);
         $this->assertSame($fileParams, $request->uploadedFiles());
     }
 
@@ -303,7 +304,7 @@ class RequestTest extends TestCase
             ],
         ];
 
-        $request = new Request([], [], [], [], $fileParams, [], null);
+        $request = new Request([], [], [], $fileParams, [], null);
         $this->assertSame($fileParams["file1"], $request->uploadedFile("file1"));
         $this->assertNull($request->uploadedFile("file2"));
     }
@@ -315,7 +316,7 @@ class RequestTest extends TestCase
             return "This is the body";
         };
 
-        $request = new Request([], [], [], [], [], [], $bodyFactory);
+        $request = new Request([], [], [], [], [], $bodyFactory);
         $this->assertSame("This is the body", $request->body());
     }
 
@@ -328,7 +329,7 @@ class RequestTest extends TestCase
             }
         };
 
-        $request = new Request([], [], [], [], [], [], $bodyFactory);
+        $request = new Request([], [], [], [], [], $bodyFactory);
         $this->assertSame("This is the body", $request->body());
     }
 
@@ -339,14 +340,14 @@ class RequestTest extends TestCase
             return null;
         };
 
-        $request = new Request([], [], [], [], [], [], $bodyFactory);
+        $request = new Request([], [], [], [], [], $bodyFactory);
         $this->assertNull($request->body());
     }
 
     #[Test]
     public function itReturnsNullIfNoBodyFactoryProvided(): void
     {
-        $request = new Request([], [], [], [], [], [], null);
+        $request = new Request([], [], [], [], [], null);
         $this->assertNull($request->body());
     }
 
@@ -357,7 +358,7 @@ class RequestTest extends TestCase
 
         $this->expectException(\TypeError::class);
         // @phpstan-ignore argument.type
-        $request = new Request([], [], [], [], [], [], $bodyFactory);
+        $request = new Request([], [], [], [], [], $bodyFactory);
     }
 
     #[Test]
@@ -371,7 +372,7 @@ class RequestTest extends TestCase
 
         $this->expectException(\TypeError::class);
         // @phpstan-ignore argument.type
-        $request = new Request([], [], [], [], [], [], $bodyFactory);
+        $request = new Request([], [], [], [], [], $bodyFactory);
     }
 
     #[Test]
@@ -379,7 +380,7 @@ class RequestTest extends TestCase
     {
         $bodyFactory = "This is the body";
 
-        $request = new Request([], [], [], [], [], [], $bodyFactory);
+        $request = new Request([], [], [], [], [], $bodyFactory);
         $this->assertSame("This is the body", $request->body());
     }
 
@@ -392,7 +393,7 @@ class RequestTest extends TestCase
             }
         };
 
-        $request = new Request([], [], [], [], [], [], $bodyFactory);
+        $request = new Request([], [], [], [], [], $bodyFactory);
         $this->assertSame("This is the body", $request->body());
     }
 
@@ -409,7 +410,7 @@ class RequestTest extends TestCase
             }
         };
 
-        $request = new Request([], [], [], [], [], [], $bodyFactory);
+        $request = new Request([], [], [], [], [], $bodyFactory);
         $this->assertSame("This is the body as generated by __invoke", $request->body());
     }
 }
