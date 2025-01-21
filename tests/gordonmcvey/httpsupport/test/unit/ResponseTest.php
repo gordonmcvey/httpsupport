@@ -32,7 +32,7 @@ class ResponseTest extends TestCase
     {
         $response = new Response(SuccessCodes::OK, "Hello, world!");
 
-        $this->assertEquals('application/json', $response->header('Content-Type'));
+        $this->assertEquals('text/plain', $response->header('Content-Type'));
         $this->assertEquals(13, $response->header('Content-Length'));
     }
 
@@ -44,7 +44,7 @@ class ResponseTest extends TestCase
             "Content-Length" => '12345',
         ]);
 
-        $this->assertEquals('application/json', $response->header('Content-Type'));
+        $this->assertEquals('text/plain', $response->header('Content-Type'));
         $this->assertEquals(13, $response->header('Content-Length'));
     }
 
@@ -72,7 +72,7 @@ class ResponseTest extends TestCase
             ->setHeader("mIXEdcAsE", "Mixed-case header");
 
         $this->assertEquals([
-            "Content-Type"   => "application/json",
+            "Content-Type"   => "text/plain",
             "Content-Length" => "0",
             "lowercase"      => "Lower-case header",
             "UPPERCASE"      => "Upper-case header",
