@@ -22,11 +22,22 @@ namespace gordonmcvey\httpsupport;
 
 use gordonmcvey\httpsupport\enum\Verbs;
 
+/**
+ * @phpstan-consistent-constructor
+ */
 class Request implements RequestInterface, \JsonSerializable
 {
     private const string REQUEST_BODY_SOURCE = "php://input";
     private const string HEADER_PREFIX = "HTTP_";
     private const string REQUEST_METHOD = "REQUEST_METHOD";
+    private const string RAW_HEADER_KEY_SEP = "_";
+    private const string COOKED_HEADER_KEY_SEP = "-";
+
+    // Keys in the ServerParams array that don't start with the normal header prefix but which are still headers
+    private const array SPECIAL_HEADER_KEYS = [
+        "CONTENT_TYPE"   => "CONTENT_TYPE",
+        "CONTENT_LENGTH" => "CONTENT_LENGTH",
+    ];
 
     /**
      * Header values (lazy-populated on first call to header() or headers())
@@ -99,6 +110,17 @@ class Request implements RequestInterface, \JsonSerializable
         return $this->headers()[$name] ?? $default;
     }
 
+    public function contentType(): ?string
+    {
+        return $this->header("Content-Type");
+    }
+
+    public function contentLength(): ?int
+    {
+        $length = $this->header("Content-Length");
+        return null !== $length ? (int) $length : null;
+    }
+
     public function verb(): Verbs
     {
         if (null === $this->verb) {
@@ -110,8 +132,8 @@ class Request implements RequestInterface, \JsonSerializable
 
     public function param(string $name, mixed $default = null): mixed
     {
-        // We deliberately don't include Cookie params in this search because it would raise similar sexurity concerns to those
-        // that can happen with the $_REQUEST superglobal
+        // We deliberately don't include Cookie params in this search because it would raise similar sexurity concerns
+        // to those that can happen with the $_REQUEST superglobal
         return $this->queryParams[$name] ?? $this->postParams[$name] ?? $default;
     }
 
@@ -158,7 +180,6 @@ class Request implements RequestInterface, \JsonSerializable
 
     /**
      * @return array{
-     *     requestParams: array<string, mixed>,
      *     queryParams: array<string, mixed>,
      *     postParams: array<string, mixed>,
      *     cookieParams: array<string, mixed>,
@@ -187,14 +208,20 @@ class Request implements RequestInterface, \JsonSerializable
     private function extractHeaders(): array
     {
         $headers = [];
+        $prefixLength = strlen(self::HEADER_PREFIX);
 
         foreach ($this->serverParams as $key => $value) {
-            if (0 === strpos($key, self::HEADER_PREFIX)) {
-                $headers[
-                    str_replace(' ', '-', ucwords(
-                        strtolower(str_replace('_', ' ', substr($key, 5)))
-                    ))
-                ] = $value;
+            $isSpecialHeader = isset(self::SPECIAL_HEADER_KEYS[$key]);
+
+            if (0 === strpos($key, self::HEADER_PREFIX) || $isSpecialHeader) {
+                $headerKey = str_replace(' ', self::COOKED_HEADER_KEY_SEP, ucwords(
+                    strtolower(str_replace(self::RAW_HEADER_KEY_SEP, ' ', $key))
+                ));
+                if (!$isSpecialHeader) {
+                    $headerKey = substr($headerKey, $prefixLength);
+                }
+
+                $headers[$headerKey] = $value;
             }
         }
 
@@ -204,9 +231,9 @@ class Request implements RequestInterface, \JsonSerializable
     /**
      * Factory method to populate a Request instance from the PHP request
      */
-    public static function fromSuperGlobals(): self
+    public static function fromSuperGlobals(): static
     {
-        return new self(
+        return new static(
             $_GET,
             $_POST,
             $_COOKIE,
