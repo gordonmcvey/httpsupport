@@ -31,6 +31,10 @@ interface RequestInterface
 
     public function header(string $name, mixed $default = null): mixed;
 
+    public function contentType(): ?string;
+
+    public function contentLength(): ?int;
+
     public function verb(): Verbs;
 
     public function param(string $name, mixed $default = null): mixed;

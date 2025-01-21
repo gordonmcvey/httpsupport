@@ -24,7 +24,7 @@ use gordonmcvey\httpsupport\enum\JsonTypes;
 use gordonmcvey\httpsupport\enum\statuscodes\ClientErrorCodes;
 use ValueError;
 
-class JsonRequest extends Request
+class JsonRequest extends Request implements JsonRequestInterface
 {
     private mixed $requestBodyJson = null;
 
