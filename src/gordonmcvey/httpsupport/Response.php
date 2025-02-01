@@ -75,6 +75,18 @@ class Response implements ResponseInterface, Stringable
         $this->contentLengthHeader();
     }
 
+    public function responseCode(): InfoCodes|SuccessCodes|RedirectCodes|ClientErrorCodes|ServerErrorCodes
+    {
+        return $this->responseCode;
+    }
+
+    public function setResponseCode(
+        InfoCodes|SuccessCodes|RedirectCodes|ClientErrorCodes|ServerErrorCodes $responseCode,
+    ): self {
+        $this->responseCode = $responseCode;
+        return $this;
+    }
+
     public function header(string $key): ?string
     {
         return $this->headers[$this->headerMap[strtolower($key)]] ?? null;
