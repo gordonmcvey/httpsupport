@@ -31,6 +31,8 @@ interface RequestInterface
 
     public function header(string $name, mixed $default = null): mixed;
 
+    public function setHeader(string $name, mixed $value): self;
+
     public function contentType(): ?string;
 
     public function contentLength(): ?int;

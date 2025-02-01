@@ -98,6 +98,36 @@ class RequestTest extends TestCase
     }
 
     #[Test]
+    public function itCanAddAnHeader(): void
+    {
+        $serverParams = [
+            "HTTP_HEADER_ONE" => "foo",
+            "HTTP_HEADER_TWO" => "bar",
+        ];
+
+        $request = new Request([], [], [], [], $serverParams, null);
+
+        $this->assertNull($request->header("Header-Three"));
+        $request->setHeader("Header-Three", "baz");
+        $this->assertSame("baz", $request->header("Header-Three"));
+    }
+
+    #[Test]
+    public function itCanReplaceHeader(): void
+    {
+        $serverParams = [
+            "HTTP_HEADER_ONE"    => "foo",
+            "HTTP_HEADER_TWO"    => "bar",
+        ];
+
+        $request = new Request([], [], [], [], $serverParams, null);
+
+        $this->assertSame("bar", $request->header("Header-Two"));
+        $request->setHeader("Header-Two", "baz");
+        $this->assertSame("baz", $request->header("Header-Two"));
+    }
+
+    #[Test]
     #[DataProvider("provideVerbs")]
     public function itCanReturnTheVerb(Verbs $verb): void
     {

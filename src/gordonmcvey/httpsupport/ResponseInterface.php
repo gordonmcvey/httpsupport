@@ -20,8 +20,20 @@ declare(strict_types=1);
 
 namespace gordonmcvey\httpsupport;
 
+use gordonmcvey\httpsupport\enum\statuscodes\ClientErrorCodes;
+use gordonmcvey\httpsupport\enum\statuscodes\InfoCodes;
+use gordonmcvey\httpsupport\enum\statuscodes\RedirectCodes;
+use gordonmcvey\httpsupport\enum\statuscodes\ServerErrorCodes;
+use gordonmcvey\httpsupport\enum\statuscodes\SuccessCodes;
+
 interface ResponseInterface
 {
+    public function responseCode(): InfoCodes|SuccessCodes|RedirectCodes|ClientErrorCodes|ServerErrorCodes;
+
+    public function setResponseCode(
+        InfoCodes|SuccessCodes|RedirectCodes|ClientErrorCodes|ServerErrorCodes $responseCode,
+    ): self;
+
     public function setHeader(string $key, string $value): self;
 
     public function header(string $key): ?string;
@@ -34,4 +46,12 @@ interface ResponseInterface
     public function sendHeaders(): self;
 
     public function body(): string;
+
+    public function setBody(string $body): self;
+
+    public function contentType(): string;
+
+    public function contentEncoding(): ?string;
+
+    public function contentLength(): int;
 }

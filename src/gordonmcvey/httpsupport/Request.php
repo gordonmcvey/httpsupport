@@ -110,6 +110,16 @@ class Request implements RequestInterface, \JsonSerializable
         return $this->headers()[$name] ?? $default;
     }
 
+    public function setHeader(string $name, mixed $value): self
+    {
+        if (null === $this->headers) {
+            $this->headers = $this->extractHeaders();
+        }
+
+        $this->headers[$name] = $value;
+        return $this;
+    }
+
     public function contentType(): ?string
     {
         return $this->header("Content-Type");
