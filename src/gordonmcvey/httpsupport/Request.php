@@ -29,6 +29,7 @@ class Request implements RequestInterface, \JsonSerializable
 {
     private const string REQUEST_BODY_SOURCE = "php://input";
     private const string HEADER_PREFIX = "HTTP_";
+    private const string REQUEST_URI = "REQUEST_URI";
     private const string REQUEST_METHOD = "REQUEST_METHOD";
     private const string RAW_HEADER_KEY_SEP = "_";
     private const string COOKED_HEADER_KEY_SEP = "-";
@@ -129,6 +130,11 @@ class Request implements RequestInterface, \JsonSerializable
     {
         $length = $this->header("Content-Length");
         return null !== $length ? (int) $length : null;
+    }
+
+    public function uri(): string
+    {
+        return $this->serverParams[self::REQUEST_URI];
     }
 
     public function verb(): Verbs

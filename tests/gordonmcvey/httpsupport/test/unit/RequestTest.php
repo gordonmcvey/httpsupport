@@ -128,6 +128,17 @@ class RequestTest extends TestCase
     }
 
     #[Test]
+    public function itCanReturnTheUri(): void
+    {
+        $serverParams = [
+            "REQUEST_URI" => "/foo/bar?baz"
+        ];
+
+        $request = new Request([], [], [], [], $serverParams, null);
+        $this->assertSame("/foo/bar?baz", $request->uri());
+    }
+
+    #[Test]
     #[DataProvider("provideVerbs")]
     public function itCanReturnTheVerb(Verbs $verb): void
     {
