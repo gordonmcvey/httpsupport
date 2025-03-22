@@ -24,7 +24,7 @@
   },
   "autoload": {
     "psr-4": {
-      "gordonmcvey\\httpsupport\\": "src/gordonmcvey/httpsupport"
+      "gordonmcvey\\httpsupport\\": "src"
     }
   },
   "autoload-dev": {
