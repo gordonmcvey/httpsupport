@@ -146,13 +146,6 @@ class Request implements RequestInterface, \JsonSerializable
         return $this->verb;
     }
 
-    public function param(string $name, mixed $default = null): mixed
-    {
-        // We deliberately don't include Cookie params in this search because it would raise similar sexurity concerns
-        // to those that can happen with the $_REQUEST superglobal
-        return $this->queryParams[$name] ?? $this->postParams[$name] ?? $default;
-    }
-
     public function queryParam(string $name, mixed $default = null): mixed
     {
         return $this->queryParams[$name] ?? $default;
@@ -246,19 +239,25 @@ class Request implements RequestInterface, \JsonSerializable
 
     /**
      * Factory method to populate a Request instance from the PHP request
+     *
+     * @param callable|string|null $bodyFactory Data source for the request body (if any)
      */
-    public static function fromSuperGlobals(): static
+    public static function fromSuperGlobals(mixed $bodyFactory = null): static
     {
+        null !== $bodyFactory || $bodyFactory = static::defaultBodyFactory(...);
+
         return new static(
             $_GET,
             $_POST,
             $_COOKIE,
             $_FILES,
             $_SERVER,
-            function (): ?string {
-                $requestBody = file_get_contents(self::REQUEST_BODY_SOURCE);
-                return false !== $requestBody ? $requestBody : null;
-            }
+            $bodyFactory,
         );
+    }
+
+    protected static function defaultBodyFactory(): ?string {
+        $requestBody = file_get_contents(self::REQUEST_BODY_SOURCE);
+        return false !== $requestBody ? $requestBody : null;
     }
 }

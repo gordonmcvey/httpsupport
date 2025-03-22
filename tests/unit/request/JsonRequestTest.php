@@ -51,7 +51,7 @@ class JsonRequestTest extends TestCase
         $json = '{"foo": "bar", "baz": "quux"}';
 
         $this->expectException(ValueError::class);
-        $request = new JsonRequest([], [], [], [], $serverParams, $json);
+        new JsonRequest([], [], [], [], $serverParams, $json);
     }
 
     #[Test]
@@ -72,9 +72,6 @@ class JsonRequestTest extends TestCase
         $json = '{"foo": "bar", "baz": "quux"}';
 
         $request = new JsonRequest([], [], [], [], $serverParams, $json);
-        
-        $this->assertSame("bar", $request->param("foo"));
-        $this->assertSame("quux", $request->param("baz"));
         $this->assertSame("bar", $request->jsonParam("foo"));
         $this->assertSame("quux", $request->jsonParam("baz"));
     }
@@ -87,44 +84,8 @@ class JsonRequestTest extends TestCase
 
         $request = new JsonRequest([], [], [], [], $serverParams, $json);
 
-        $this->assertSame("bar", $request->param("foo", "bar"));
-        $this->assertSame("bar", $request->queryParam("foo", "bar"));
-        $this->assertNull($request->param("foo",));
-        $this->assertNull($request->queryParam("foo"));
-    }
-
-    #[Test]
-    public function itCanGetParamsFromTheCorrectSource(): void
-    {
-        $queryParams = [
-            "param1" => "queryValue1",
-            "param2" => "queryParam2",
-        ];
-        $postParams = [
-            "param1" => "postValue1",
-            "param2" => "postValue2",
-            "param3" => "postValue3",
-        ];
-        $serverParams = ["CONTENT_TYPE" => "application/json"];
-
-        $json = json_encode([
-            "param1" => "jsonValue1",
-        ]);
-
-        $request = new JsonRequest(
-            $queryParams,
-            $postParams,
-            [],
-            [],
-            $serverParams,
-            $json,
-        );
-
-        $this->assertSame("jsonValue1", $request->param("param1", "default"));
-        $this->assertSame("queryParam2", $request->param("param2", "default"));
-        $this->assertSame("postValue3", $request->param("param3", "default"));
-        $this->assertSame("default", $request->param("param4", "default"));
-        $this->assertNull($request->param("param5"));
+        $this->assertSame("bar", $request->jsonParam("foo", "bar"));
+        $this->assertNull($request->jsonParam("foo"));
     }
 
     #[Test]
@@ -135,5 +96,6 @@ class JsonRequestTest extends TestCase
 
         $this->assertInstanceOf(JsonRequest::class, $request);
         $this->assertSame(JsonRequest::class, get_class($request));
+        $this->assertNull($request->body());
     }
 }

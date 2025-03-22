@@ -65,17 +65,6 @@ class JsonRequest extends Request implements JsonRequestInterface
         return $this->requestBodyJson;
     }
 
-    public function param(string $key, mixed $default = null): mixed
-    {
-        // The JSON payload takes precidence over other request values so check there first
-        $param = $this->jsonParam($key);
-        if (null !== $param) {
-            return $param;
-        }
-
-        return parent::param($key, $default);
-    }
-
     public function jsonParam(string $key, mixed $default = null): mixed
     {
         $json = $this->jsonBody();

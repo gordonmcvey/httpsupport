@@ -182,8 +182,6 @@ class RequestTest extends TestCase
         ];
 
         $request = new Request($queryParams, [], [], [], [], null);
-        $this->assertSame("bar", $request->param("foo"));
-        $this->assertSame("quux", $request->param("baz"));
         $this->assertSame("bar", $request->queryParam("foo"));
         $this->assertSame("quux", $request->queryParam("baz"));
     }
@@ -192,9 +190,7 @@ class RequestTest extends TestCase
     public function itCanReturnDefaultValueForUnsetQueryParam(): void
     {
         $request = new Request([], [], [], [], [], null);
-        $this->assertSame("bar", $request->param("foo", "bar"));
         $this->assertSame("bar", $request->queryParam("foo", "bar"));
-        $this->assertNull($request->param("foo",));
         $this->assertNull($request->queryParam("foo"));
     }
 
@@ -207,8 +203,6 @@ class RequestTest extends TestCase
         ];
 
         $request = new Request([], $postParams, [], [], [], null);
-        $this->assertSame("bar", $request->param("foo"));
-        $this->assertSame("quux", $request->param("baz"));
         $this->assertSame("bar", $request->postParam("foo"));
         $this->assertSame("quux", $request->postParam("baz"));
     }
@@ -217,7 +211,6 @@ class RequestTest extends TestCase
     public function itCanReturnDefaultValueForUnsetPostParam(): void
     {
         $request = new Request([], [], [], [], [], null);
-        $this->assertSame("bar", $request->param("foo", "bar"));
         $this->assertSame("bar", $request->postParam("foo", "bar"));
     }
 
@@ -232,18 +225,12 @@ class RequestTest extends TestCase
         $request = new Request([], [], $cookieParams, [], [], null);
         $this->assertSame("bar", $request->cookieParam("foo"));
         $this->assertSame("quux", $request->cookieParam("baz"));
-
-        // Cookies shouldn't end up in general params
-        $this->assertNull($request->param("foo"));
-        $this->assertNull($request->param("baz"));
     }
 
     #[Test]
     public function itCanReturnDefaultValueForUnsetCookieParam(): void
     {
         $request = new Request([], [], [], [], [], null);
-
-        $this->assertSame("bar", $request->param("foo", "bar"));
         $this->assertSame("bar", $request->cookieParam("foo", "bar"));
     }
 
@@ -272,43 +259,6 @@ class RequestTest extends TestCase
     }
 
     #[Test]
-    public function itCanGetParamsFromTheCorrectSource(): void
-    {
-        $queryParams = [
-            "param1" => "queryValue1",
-            "param4" => "queryValue4",
-        ];
-        $postParams = [
-            "param1" => "postValue1",
-            "param2" => "postValue2",
-            "param5" => "postValue5",
-        ];
-        // Cookies should have no bearing on param()
-        $cookieParams = [
-            "param1" => "cookieValue1",
-            "param2" => "cookieValue2",
-            "param3" => "cookieValue3",
-            "param6" => "cookieValue6",
-        ];
-
-        $request = new Request(
-            $queryParams,
-            $postParams,
-            $cookieParams,
-            [],
-            [],
-            null,
-        );
-        $this->assertSame("queryValue1", $request->param("param1", "default"));
-        $this->assertSame("postValue2", $request->param("param2", "default"));
-        $this->assertSame("default", $request->param("param3", "default"));
-        $this->assertSame("queryValue4", $request->param("param4", "default"));
-        $this->assertSame("postValue5", $request->param("param5", "default"));
-        $this->assertSame("default", $request->param("param6", "default"));
-        $this->assertSame("default", $request->param("param7", "default"));
-    }
-
-    #[Test]
     public function itCanGetContentType(): void
     {
         $serverParams = [
@@ -324,7 +274,6 @@ class RequestTest extends TestCase
     public function itWontReturnAContextTypeIfNotSet(): void
     {
         $request = new Request([], [], [], [], []);
-
         $this->assertNull($request->contentType());
     }
 
@@ -336,7 +285,6 @@ class RequestTest extends TestCase
         ];
 
         $request = new Request([], [], [], [], $serverParams);
-
         $this->assertSame(123, $request->contentLength());
     }
 
@@ -344,7 +292,6 @@ class RequestTest extends TestCase
     public function itWontReturnAContentLengthIfNotSet(): void
     {
         $request = new Request([], [], [], [], []);
-
         $this->assertNull($request->contentLength());
     }
 
@@ -386,9 +333,7 @@ class RequestTest extends TestCase
     #[Test]
     public function itCanGetBodyWithFactoryFunction(): void
     {
-        $bodyFactory = function(): ?string {
-            return "This is the body";
-        };
+        $bodyFactory = fn(): ?string => "This is the body";
 
         $request = new Request([], [], [], [], [], $bodyFactory);
         $this->assertSame("This is the body", $request->body());
@@ -410,9 +355,7 @@ class RequestTest extends TestCase
     #[Test]
     public function itReturnsNullIForBodyIfFactoryReturnsNull(): void
     {
-        $bodyFactory = function(): ?string {
-            return null;
-        };
+        $bodyFactory = fn(): ?string => null;
 
         $request = new Request([], [], [], [], [], $bodyFactory);
         $this->assertNull($request->body());
@@ -494,5 +437,18 @@ class RequestTest extends TestCase
         $request = Request::fromSuperGlobals();
         $this->assertInstanceOf(Request::class, $request);
         $this->assertSame(Request::class, get_class($request));
+        $this->assertNull($request->body());
+    }
+
+    #[Test]
+    public function itInstantiatesFromSuperGlobalsAndBodyFactory(): void
+    {
+        $request = Request::fromSuperGlobals(fn(): string => json_encode([
+            "foo" => 'bar',
+            "baz" => "quux",
+        ]));
+        $this->assertInstanceOf(Request::class, $request);
+        $this->assertSame(Request::class, get_class($request));
+        $this->assertSame('{"foo":"bar","baz":"quux"}', $request->body());
     }
 }
