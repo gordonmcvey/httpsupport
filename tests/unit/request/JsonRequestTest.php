@@ -18,9 +18,9 @@
 
 declare(strict_types=1);
 
-namespace gordonmcvey\httpsupport\test\unit;
+namespace gordonmcvey\httpsupport\test\unit\request;
 
-use gordonmcvey\httpsupport\JsonRequest;
+use gordonmcvey\httpsupport\request\JsonRequest;
 use JsonException;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;

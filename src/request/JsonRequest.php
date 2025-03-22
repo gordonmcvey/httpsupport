@@ -18,7 +18,7 @@
 
 declare(strict_types=1);
 
-namespace gordonmcvey\httpsupport;
+namespace gordonmcvey\httpsupport\request;
 
 use gordonmcvey\httpsupport\enum\JsonTypes;
 use gordonmcvey\httpsupport\enum\statuscodes\ClientErrorCodes;
