@@ -33,8 +33,14 @@ interface RequestInterface
 
     public function setHeader(string $name, mixed $value): self;
 
+    /**
+     * Return the content type of the request payload.  If the request doesn't have a payload then null is returned
+     */
     public function contentType(): ?string;
 
+    /**
+     * Return the length in bytes of the request payload.  If the request doesn't have a payload then null is returned
+     */
     public function contentLength(): ?int;
 
     public function verb(): Verbs;
