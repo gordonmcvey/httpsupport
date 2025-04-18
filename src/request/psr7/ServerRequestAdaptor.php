@@ -28,12 +28,24 @@ class ServerRequestAdaptor implements RequestInterface
 {
     private ?Verbs $verb = null;
 
+    /**
+     * @var array<array-key, mixed>
+     */
     private ?array $queryParams = null;
 
+    /**
+     * @var array<array-key, mixed>
+     */
     private ?array $payloadParams = null;
 
+    /**
+     * @var array<array-key, mixed>
+     */
     private ?array $cookieParams = null;
 
+    /**
+     * @var array<array-key, mixed>
+     */
     private ?array $serverParams = null;
 
     private ?string $body = null;
@@ -98,7 +110,7 @@ class ServerRequestAdaptor implements RequestInterface
     public function payloadParam(string $name, mixed $default = null): mixed
     {
         if (null === $this->payloadParams) {
-            $this->payloadParams = $this->originalRequest->getParsedBody();
+            $this->payloadParams = (array) $this->originalRequest->getParsedBody();
         }
 
         return $this->payloadParams[$name] ?? $default;
@@ -143,7 +155,7 @@ class ServerRequestAdaptor implements RequestInterface
     public function body(): ?string
     {
         if (null === $this->body) {
-            $this->body = $this->originalRequest->getBody()->getContents() ?? "";
+            $this->body = $this->originalRequest->getBody()->getContents();
         }
 
         return $this->body;

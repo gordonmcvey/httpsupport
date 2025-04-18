@@ -190,7 +190,7 @@ class Request implements RequestInterface, \JsonSerializable
     /**
      * @return array{
      *     queryParams: array<string, mixed>,
-     *     postParams: array<string, mixed>,
+     *     payloadParams: array<string, mixed>,
      *     cookieParams: array<string, mixed>,
      *     fileParams: array<string, array<string, mixed>>,
      *     serverParams: array<string, mixed>
@@ -256,7 +256,8 @@ class Request implements RequestInterface, \JsonSerializable
         );
     }
 
-    protected static function defaultBodyFactory(): ?string {
+    protected static function defaultBodyFactory(): ?string
+    {
         $requestBody = file_get_contents(self::REQUEST_BODY_SOURCE);
         return false !== $requestBody ? $requestBody : null;
     }
