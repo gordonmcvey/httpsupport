@@ -65,7 +65,7 @@ class Request implements RequestInterface, \JsonSerializable
      * if not all requests will require you to access the request body
      *
      * @param array<string, mixed> $queryParams
-     * @param array<string, mixed> $postParams
+     * @param array<string, mixed> $payloadParams
      * @param array<string, mixed> $cookieParams
      * @param array<string, array{
      *     name: string,
@@ -80,7 +80,7 @@ class Request implements RequestInterface, \JsonSerializable
      */
     public function __construct(
         private readonly array $queryParams,
-        private readonly array $postParams,
+        private readonly array $payloadParams,
         private readonly array $cookieParams,
         private readonly array $fileParams,
         private readonly array $serverParams,
@@ -151,9 +151,9 @@ class Request implements RequestInterface, \JsonSerializable
         return $this->queryParams[$name] ?? $default;
     }
 
-    public function postParam(string $name, mixed $default = null): mixed
+    public function payloadParam(string $name, mixed $default = null): mixed
     {
-        return $this->postParams[$name] ?? $default;
+        return $this->payloadParams[$name] ?? $default;
     }
 
     public function cookieParam(string $name, mixed $default = null): mixed
@@ -200,7 +200,7 @@ class Request implements RequestInterface, \JsonSerializable
     {
         return [
             "queryParams"   => $this->queryParams,
-            "postParams"    => $this->postParams,
+            "payloadParams" => $this->payloadParams,
             "cookieParams"  => $this->cookieParams,
             "fileParams"    => $this->fileParams,
             "serverParams"  => $this->serverParams,

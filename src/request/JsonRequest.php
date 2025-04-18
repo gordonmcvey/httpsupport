@@ -30,7 +30,7 @@ class JsonRequest extends Request implements JsonRequestInterface
 
     public function __construct(
         array $queryParams,
-        array $postParams,
+        array $payloadParams,
         array $cookieParams,
         array $fileParams,
         array $serverParams,
@@ -38,7 +38,7 @@ class JsonRequest extends Request implements JsonRequestInterface
     ) {
         parent::__construct(
             $queryParams,
-            $postParams,
+            $payloadParams,
             $cookieParams,
             $fileParams,
             $serverParams,

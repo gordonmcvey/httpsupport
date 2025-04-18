@@ -180,8 +180,8 @@ class ServerRequestAdaptorTest extends TestCase
         ;
 
         $request = new ServerRequestAdaptor($psrRequest);
-        $this->assertSame("bar", $request->postParam("foo"));
-        $this->assertSame("quux", $request->postParam("baz"));
+        $this->assertSame("bar", $request->payloadParam("foo"));
+        $this->assertSame("quux", $request->payloadParam("baz"));
     }
 
     #[Test]
@@ -195,8 +195,8 @@ class ServerRequestAdaptorTest extends TestCase
         ;
 
         $request = new ServerRequestAdaptor($psrRequest);
-        $this->assertSame("bar", $request->postParam("foo", "bar"));
-        $this->assertNull(actual: $request->postParam("foo"));
+        $this->assertSame("bar", $request->payloadParam("foo", "bar"));
+        $this->assertNull(actual: $request->payloadParam("foo"));
     }
 
     #[Test]

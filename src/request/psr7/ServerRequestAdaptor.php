@@ -95,11 +95,12 @@ class ServerRequestAdaptor implements RequestInterface
         return $this->queryParams[$name] ?? $default;
     }
 
-    public function postParam(string $name, mixed $default = null): mixed
+    public function payloadParam(string $name, mixed $default = null): mixed
     {
         if (null === $this->payloadParams) {
             $this->payloadParams = $this->originalRequest->getParsedBody();
         }
+
         return $this->payloadParams[$name] ?? $default;
     }
 

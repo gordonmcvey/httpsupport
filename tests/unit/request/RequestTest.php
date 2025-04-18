@@ -197,21 +197,21 @@ class RequestTest extends TestCase
     #[Test]
     public function itCanGetParamFromPost(): void
     {
-        $postParams = [
+        $payloadParams = [
             "foo" => "bar",
             "baz" => "quux",
         ];
 
-        $request = new Request([], $postParams, [], [], [], null);
-        $this->assertSame("bar", $request->postParam("foo"));
-        $this->assertSame("quux", $request->postParam("baz"));
+        $request = new Request([], $payloadParams, [], [], [], null);
+        $this->assertSame("bar", $request->payloadParam("foo"));
+        $this->assertSame("quux", $request->payloadParam("baz"));
     }
 
     #[Test]
-    public function itCanReturnDefaultValueForUnsetPostParam(): void
+    public function itCanReturnDefaultValueForUnsetPayloadParams(): void
     {
         $request = new Request([], [], [], [], [], null);
-        $this->assertSame("bar", $request->postParam("foo", "bar"));
+        $this->assertSame("bar", $request->payloadParam("foo", "bar"));
     }
 
     #[Test]
