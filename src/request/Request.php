@@ -65,7 +65,7 @@ class Request implements RequestInterface, \JsonSerializable
      * if not all requests will require you to access the request body
      *
      * @param array<string, mixed> $queryParams
-     * @param array<string, mixed> $postParams
+     * @param array<string, mixed> $payloadParams
      * @param array<string, mixed> $cookieParams
      * @param array<string, array{
      *     name: string,
@@ -80,7 +80,7 @@ class Request implements RequestInterface, \JsonSerializable
      */
     public function __construct(
         private readonly array $queryParams,
-        private readonly array $postParams,
+        private readonly array $payloadParams,
         private readonly array $cookieParams,
         private readonly array $fileParams,
         private readonly array $serverParams,
@@ -146,21 +146,14 @@ class Request implements RequestInterface, \JsonSerializable
         return $this->verb;
     }
 
-    public function param(string $name, mixed $default = null): mixed
-    {
-        // We deliberately don't include Cookie params in this search because it would raise similar sexurity concerns
-        // to those that can happen with the $_REQUEST superglobal
-        return $this->queryParams[$name] ?? $this->postParams[$name] ?? $default;
-    }
-
     public function queryParam(string $name, mixed $default = null): mixed
     {
         return $this->queryParams[$name] ?? $default;
     }
 
-    public function postParam(string $name, mixed $default = null): mixed
+    public function payloadParam(string $name, mixed $default = null): mixed
     {
-        return $this->postParams[$name] ?? $default;
+        return $this->payloadParams[$name] ?? $default;
     }
 
     public function cookieParam(string $name, mixed $default = null): mixed
@@ -207,7 +200,7 @@ class Request implements RequestInterface, \JsonSerializable
     {
         return [
             "queryParams"   => $this->queryParams,
-            "postParams"    => $this->postParams,
+            "payloadParams" => $this->payloadParams,
             "cookieParams"  => $this->cookieParams,
             "fileParams"    => $this->fileParams,
             "serverParams"  => $this->serverParams,
@@ -246,19 +239,25 @@ class Request implements RequestInterface, \JsonSerializable
 
     /**
      * Factory method to populate a Request instance from the PHP request
+     *
+     * @param callable|string|null $bodyFactory Data source for the request body (if any)
      */
-    public static function fromSuperGlobals(): static
+    public static function fromSuperGlobals(mixed $bodyFactory = null): static
     {
+        null !== $bodyFactory || $bodyFactory = static::defaultBodyFactory(...);
+
         return new static(
             $_GET,
             $_POST,
             $_COOKIE,
             $_FILES,
             $_SERVER,
-            function (): ?string {
-                $requestBody = file_get_contents(self::REQUEST_BODY_SOURCE);
-                return false !== $requestBody ? $requestBody : null;
-            }
+            $bodyFactory,
         );
+    }
+
+    protected static function defaultBodyFactory(): ?string {
+        $requestBody = file_get_contents(self::REQUEST_BODY_SOURCE);
+        return false !== $requestBody ? $requestBody : null;
     }
 }
