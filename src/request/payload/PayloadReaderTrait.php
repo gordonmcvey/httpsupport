@@ -27,9 +27,12 @@ trait PayloadReaderTrait
     private ?string $body = null;
 
     /**
+     * This method is marked protected to facilitate unit tests, but it should be treated as private to the classes that
+     * use it directly
+     *
      * @todo Stream support for handling huge request payloads
      */
-    private function readBody(string $source): ?string
+    protected function readBody(string $source): ?string
     {
         $requestBody = file_get_contents($source);
         return false !== $requestBody ? $requestBody : null;

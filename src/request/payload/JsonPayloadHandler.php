@@ -54,7 +54,7 @@ class JsonPayloadHandler implements PayloadHandlerInterface
     public function body(): ?string
     {
         if (null === $this->body) {
-            $this->body = $this->readBody($this->source) ?? '';
+            $this->body = $this->readBody($this->source) ?? null;
         }
         return $this->body;
     }
