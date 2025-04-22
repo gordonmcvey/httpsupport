@@ -18,12 +18,12 @@ class JsonPayloadHandlerTest extends TestCase
     public function itReturnsParam(): void
     {
         $handler = $this->getMockBuilder(JsonPayloadHandler::class)
-            ->onlyMethods(["body"])
+            ->onlyMethods(["readBody"])
             ->getMock()
         ;
 
         $handler->expects($this->once())
-            ->method("body")
+            ->method("readBody")
             ->willReturn(json_encode([
                 "foo" => "bar",
                 "baz" => "quux",
@@ -40,19 +40,32 @@ class JsonPayloadHandlerTest extends TestCase
     public function itReturnsDefaultValue(): void
     {
         $handler = $this->getMockBuilder(JsonPayloadHandler::class)
-            ->onlyMethods(["body"])
+            ->onlyMethods(["readBody"])
             ->getMock()
-        ;
-
-        $handler->expects($this->once())
-            ->method("body")
-            ->willReturn(json_encode([
-                "foo" => "bar",
-                "baz" => "quux",
-            ]))
         ;
 
         $this->assertSame("warble", $handler->param("farble", "warble"));
         $this->assertNull($handler->param("farble"));
+    }
+
+    #[Test]
+    public function itReturnsTheBody(): void
+    {
+        $payload = json_encode([
+            "foo" => "bar",
+            "baz" => "quux",
+        ]);
+
+        $handler = $this->getMockBuilder(JsonPayloadHandler::class)
+            ->onlyMethods(["readBody"])
+            ->getMock()
+        ;
+
+        $handler->expects($this->once())
+            ->method("readBody")
+            ->willReturn($payload)
+        ;
+
+        $this->assertSame($payload, $handler->body());
     }
 }

@@ -39,10 +39,25 @@ class StatusCodeMessageMapperTest extends TestCase
     #[Test]
     public function itReturnsCorrectMessagesForStatusCodes(): void
     {
-        $this->assertSame(InfoMessages::EARLY_HINTS, StatusCodeMessageMapper::forCode(InfoCodes::EARLY_HINTS));
-        $this->assertSame(SuccessMessages::NON_AUTHORITATIVE_INFORMATION, StatusCodeMessageMapper::forCode(SuccessCodes::NON_AUTHORITATIVE_INFORMATION));
-        $this->assertSame(RedirectMessages::PERMANENTLY_REDIRECT, StatusCodeMessageMapper::forCode(RedirectCodes::PERMANENTLY_REDIRECT));
-        $this->assertSame(ClientErrorMessages::FAILED_DEPENDENCY, StatusCodeMessageMapper::forCode(ClientErrorCodes::FAILED_DEPENDENCY));
-        $this->assertSame(ServerErrorMessages::INSUFFICIENT_STORAGE, StatusCodeMessageMapper::forCode(ServerErrorCodes::INSUFFICIENT_STORAGE));
+        $this->assertSame(
+            InfoMessages::EARLY_HINTS,
+            StatusCodeMessageMapper::forCode(InfoCodes::EARLY_HINTS),
+        );
+        $this->assertSame(
+            SuccessMessages::NON_AUTHORITATIVE_INFORMATION,
+            StatusCodeMessageMapper::forCode(SuccessCodes::NON_AUTHORITATIVE_INFORMATION),
+        );
+        $this->assertSame(
+            RedirectMessages::PERMANENTLY_REDIRECT,
+            StatusCodeMessageMapper::forCode(RedirectCodes::PERMANENTLY_REDIRECT),
+        );
+        $this->assertSame(
+            ClientErrorMessages::FAILED_DEPENDENCY,
+            StatusCodeMessageMapper::forCode(ClientErrorCodes::FAILED_DEPENDENCY),
+        );
+        $this->assertSame(
+            ServerErrorMessages::INSUFFICIENT_STORAGE,
+            StatusCodeMessageMapper::forCode(ServerErrorCodes::INSUFFICIENT_STORAGE),
+        );
     }
 }

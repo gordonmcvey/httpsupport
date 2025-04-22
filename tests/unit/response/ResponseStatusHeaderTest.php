@@ -18,19 +18,19 @@
 
  declare(strict_types=1);
 
- namespace gordonmcvey\httpsupport\test\unit;
- 
+ namespace gordonmcvey\httpsupport\test\unit\response;
+
  use gordonmcvey\httpsupport\enum\statuscodes\SuccessCodes;
  use gordonmcvey\httpsupport\response\ResponseStatusHeader;
  use PHPUnit\Framework\Attributes\Test;
  use PHPUnit\Framework\TestCase;
 
  class ResponseStatusHeaderTest extends TestCase
- {
+{
     #[Test]
     public function itGeneratesTheExpectedHeaderString(): void
     {
         $header = new ResponseStatusHeader(1.1, SuccessCodes::ACCEPTED);
         $this->assertEquals("HTTP/1.1 202 Accepted", (string) $header);
     }
- }
+}

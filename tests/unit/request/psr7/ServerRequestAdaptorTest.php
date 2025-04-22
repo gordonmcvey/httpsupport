@@ -8,12 +8,17 @@ use gordonmcvey\httpsupport\enum\Verbs;
 use gordonmcvey\httpsupport\request\psr7\ServerRequestAdaptor;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\MockObject\Exception;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\StreamInterface;
+use ValueError;
 
 class ServerRequestAdaptorTest extends TestCase
 {
+    /**
+     * @throws Exception
+     */
     #[Test]
     public function itCanReturnSpecificHeader(): void
     {
@@ -33,6 +38,9 @@ class ServerRequestAdaptorTest extends TestCase
         $this->assertSame("bar", $request->header("Header-Two"));
     }
 
+    /**
+     * @throws Exception
+     */
     #[Test]
     public function itCanReturnDefaultValueForUnsetHeader(): void
     {
@@ -42,6 +50,9 @@ class ServerRequestAdaptorTest extends TestCase
         $this->assertSame("MyDefault", $request->header("Header-One", "MyDefault"));
     }
 
+    /**
+     * @throws Exception
+     */
     #[Test]
     public function itCanReturnAllHeaders(): void
     {
@@ -65,6 +76,9 @@ class ServerRequestAdaptorTest extends TestCase
         $this->assertEquals($expectations, $request->headers());
     }
 
+    /**
+     * @throws Exception
+     */
     #[Test]
     public function itCanAddAnHeader(): void
     {
@@ -80,20 +94,25 @@ class ServerRequestAdaptorTest extends TestCase
         $request->setHeader("Header-Three", "baz");
     }
 
+    /**
+     * @throws Exception
+     */
     #[Test]
     public function itCanReturnTheUri(): void
     {
         $psrRequest = $this->createMock(ServerRequestInterface::class);
         $psrRequest
             ->expects($this->once())
-            ->method(constraint: "getRequestTarget")
+            ->method("getRequestTarget")
             ->willReturn("/foo/bar?baz");
-        ;
 
         $request = new ServerRequestAdaptor($psrRequest);
         $this->assertSame("/foo/bar?baz", $request->uri());
     }
 
+    /**
+     * @throws Exception
+     */
     #[Test]
     #[DataProvider("provideVerbs")]
     public function itCanReturnTheVerb(Verbs $verb): void
@@ -102,12 +121,14 @@ class ServerRequestAdaptorTest extends TestCase
         $psrRequest
             ->method("getMethod")
             ->willReturn($verb->value);
-        ;
 
         $request = new ServerRequestAdaptor($psrRequest);
         $this->assertSame($verb, $request->verb());
     }
 
+    /**
+     * @return iterable<array-key, array<array-key, Verbs>>
+     */
     public static function provideVerbs(): iterable
     {
         foreach (Verbs::cases() as $case) {
@@ -117,6 +138,9 @@ class ServerRequestAdaptorTest extends TestCase
         }
     }
 
+    /**
+     * @throws Exception
+     */
     #[Test]
     public function itWillThrowOnInvalidVerb(): void
     {
@@ -124,13 +148,15 @@ class ServerRequestAdaptorTest extends TestCase
         $psrRequest
             ->method("getMethod")
             ->willReturn("farble warble garble");
-        ;
 
         $request = new ServerRequestAdaptor($psrRequest);
-        $this->expectException(\ValueError::class);
+        $this->expectException(ValueError::class);
         $request->verb();
     }
 
+    /**
+     * @throws Exception
+     */
     #[Test]
     public function itCanGetParamFromQuery(): void
     {
@@ -150,6 +176,9 @@ class ServerRequestAdaptorTest extends TestCase
         $this->assertSame("quux", $request->queryParam("baz"));
     }
 
+    /**
+     * @throws Exception
+     */
     #[Test]
     public function itCanReturnDefaultValueForUnsetQueryParam(): void
     {
@@ -163,9 +192,12 @@ class ServerRequestAdaptorTest extends TestCase
         $request = new ServerRequestAdaptor($psrRequest);
 
         $this->assertSame("bar", $request->queryParam("foo", "bar"));
-        $this->assertNull(actual: $request->queryParam("foo"));
+        $this->assertNull($request->queryParam("foo"));
     }
 
+    /**
+     * @throws Exception
+     */
     #[Test]
     public function itCanGetParamFromPayload(): void
     {
@@ -184,6 +216,9 @@ class ServerRequestAdaptorTest extends TestCase
         $this->assertSame("quux", $request->payloadParam("baz"));
     }
 
+    /**
+     * @throws Exception
+     */
     #[Test]
     public function itCanReturnDefaultValueForUnsetPayloadParam(): void
     {
@@ -196,9 +231,12 @@ class ServerRequestAdaptorTest extends TestCase
 
         $request = new ServerRequestAdaptor($psrRequest);
         $this->assertSame("bar", $request->payloadParam("foo", "bar"));
-        $this->assertNull(actual: $request->payloadParam("foo"));
+        $this->assertNull($request->payloadParam("foo"));
     }
 
+    /**
+     * @throws Exception
+     */
     #[Test]
     public function itCanGetParamFromCookie(): void
     {
@@ -217,6 +255,9 @@ class ServerRequestAdaptorTest extends TestCase
         $this->assertSame("quux", $request->cookieParam("baz"));
     }
 
+    /**
+     * @throws Exception
+     */
     #[Test]
     public function itCanReturnDefaultValueForUnsetCookieParam(): void
     {
@@ -229,9 +270,12 @@ class ServerRequestAdaptorTest extends TestCase
 
         $request = new ServerRequestAdaptor($psrRequest);
         $this->assertSame("bar", $request->cookieParam("foo", "bar"));
-        $this->assertNull(actual: $request->cookieParam("foo"));
+        $this->assertNull($request->cookieParam("foo"));
     }
 
+    /**
+     * @throws Exception
+     */
     #[Test]
     public function itCanGetParamFromServer(): void
     {
@@ -254,6 +298,9 @@ class ServerRequestAdaptorTest extends TestCase
         $this->assertSame("quux", $request->serverParam("ignore_this_header"));
     }
 
+    /**
+     * @throws Exception
+     */
     #[Test]
     public function itCanReturnDefaultValueForUnsetServerParam(): void
     {
@@ -267,9 +314,12 @@ class ServerRequestAdaptorTest extends TestCase
         $request = new ServerRequestAdaptor($psrRequest);
 
         $this->assertSame("bar", $request->serverParam("foo", "bar"));
-        $this->assertNull(actual: $request->serverParam("foo"));
+        $this->assertNull($request->serverParam("foo"));
     }
 
+    /**
+     * @throws Exception
+     */
     #[Test]
     public function itCanGetContentType(): void
     {
@@ -286,6 +336,9 @@ class ServerRequestAdaptorTest extends TestCase
         $this->assertSame("application/octet-stream", $request->contentType());
     }
 
+    /**
+     * @throws Exception
+     */
     #[Test]
     public function itWontReturnAContextTypeIfNotSet(): void
     {
@@ -302,6 +355,9 @@ class ServerRequestAdaptorTest extends TestCase
         $this->assertNull($request->contentType());
     }
 
+    /**
+     * @throws Exception
+     */
     #[Test]
     public function itCanGetContentLength(): void
     {
@@ -318,6 +374,9 @@ class ServerRequestAdaptorTest extends TestCase
         $this->assertSame(123, $request->contentLength());
     }
 
+    /**
+     * @throws Exception
+     */
     #[Test]
     public function itWontReturnAContentLengthIfNotSet(): void
     {
@@ -346,6 +405,9 @@ class ServerRequestAdaptorTest extends TestCase
         $this->markTestSkipped("File support not implemented yet");
     }
 
+    /**
+     * @throws Exception
+     */
     #[Test]
     public function itCanGetBody(): void
     {
