@@ -25,9 +25,6 @@ use gordonmcvey\httpsupport\request\payload\ArrayPayloadHandler;
 use gordonmcvey\httpsupport\request\payload\PayloadHandlerInterface;
 use JsonSerializable;
 
-/**
- * @phpstan-consistent-constructor
- */
 class Request implements RequestInterface, JsonSerializable
 {
     private const string HEADER_PREFIX = "HTTP_";
@@ -53,16 +50,6 @@ class Request implements RequestInterface, JsonSerializable
 
     /**
      * Class constructor
-     *
-     * For the BodyFactory argument, you can provide either a factory that will extract the body on first invocation
-     * (thus allowing lazy evaluation of the request body), the literal body string (as either a string or a Stringable
-     * object), or null (if you aren't going to be using the body for the request you're handling)
-     *
-     * If you pass in a bodyFactory value that is both Callable and Stringable, then it will be treated as a Callable
-     *
-     * Note that if you pass in a Stringable, it will be evaluated on instantiation, not on the first call to
-     * Request::body(), so it is recommended that you don't use Stringables that do a lot of heavy lifting, especially
-     * if not all requests will require you to access the request body
      *
      * @param array<string, mixed> $queryParams
      * @param array<string, mixed> $cookieParams
@@ -121,7 +108,7 @@ class Request implements RequestInterface, JsonSerializable
 
     public function uri(): string
     {
-        return $this->serverParams[self::REQUEST_URI];
+        return $this->serverParams[self::REQUEST_URI] ?? "/";
     }
 
     public function verb(): Verbs
@@ -189,7 +176,7 @@ class Request implements RequestInterface, JsonSerializable
 
     /**
      * This code is based on the V2 JAPI header logic, which in turn seems to be loosely based on a comment from the
-     * PHP manual (the getallheaders function is only guaranteed to exist if PHP is running under Apache)
+     * PHP manual (the getallheaders() function is only guaranteed to exist if PHP is running under Apache)
      *
      * @return array<string, mixed>
      * @link https://www.php.net/manual/en/function.getallheaders.php
@@ -202,7 +189,7 @@ class Request implements RequestInterface, JsonSerializable
         foreach ($this->serverParams as $key => $value) {
             $isSpecialHeader = isset(self::SPECIAL_HEADER_KEYS[$key]);
 
-            if (0 === strpos($key, self::HEADER_PREFIX) || $isSpecialHeader) {
+            if (str_starts_with($key, self::HEADER_PREFIX) || $isSpecialHeader) {
                 $headerKey = str_replace(' ', self::COOKED_HEADER_KEY_SEP, ucwords(
                     strtolower(str_replace(self::RAW_HEADER_KEY_SEP, ' ', $key))
                 ));
@@ -220,9 +207,9 @@ class Request implements RequestInterface, JsonSerializable
     /**
      * Factory method to populate a Request instance from the PHP request
      */
-    public static function fromSuperGlobals(?PayloadHandlerInterface $payloadFactory = null): static
+    public static function fromSuperGlobals(?PayloadHandlerInterface $payloadFactory = null): self
     {
-        return new static(
+        return new self(
             $_GET,
             $_COOKIE,
             $_FILES,
