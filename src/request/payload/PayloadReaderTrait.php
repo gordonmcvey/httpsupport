@@ -16,21 +16,25 @@
  * limitations under the License.
  */
 
- declare(strict_types=1);
+declare(strict_types=1);
 
- namespace gordonmcvey\httpsupport\test\unit\response;
+namespace gordonmcvey\httpsupport\request\payload;
 
- use gordonmcvey\httpsupport\enum\statuscodes\SuccessCodes;
- use gordonmcvey\httpsupport\response\ResponseStatusHeader;
- use PHPUnit\Framework\Attributes\Test;
- use PHPUnit\Framework\TestCase;
-
- class ResponseStatusHeaderTest extends TestCase
+trait PayloadReaderTrait
 {
-    #[Test]
-    public function itGeneratesTheExpectedHeaderString(): void
+    private const string REQUEST_BODY_SOURCE = "php://input";
+
+    private ?string $body = null;
+
+    /**
+     * This method is marked protected to facilitate unit tests, but it should be treated as private to the classes that
+     * use it directly
+     *
+     * @todo Stream support for handling huge request payloads
+     */
+    protected function readBody(string $source): ?string
     {
-        $header = new ResponseStatusHeader(1.1, SuccessCodes::ACCEPTED);
-        $this->assertEquals("HTTP/1.1 202 Accepted", (string) $header);
+        $requestBody = file_get_contents($source);
+        return false !== $requestBody ? $requestBody : null;
     }
 }

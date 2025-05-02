@@ -18,8 +18,9 @@
 
 declare(strict_types=1);
 
-namespace gordonmcvey\httpsupport\test\unit;
+namespace gordonmcvey\httpsupport\test\unit\response;
 
+use gordonmcvey\httpsupport\enum\statuscodes\ServerErrorCodes;
 use gordonmcvey\httpsupport\enum\statuscodes\SuccessCodes;
 use gordonmcvey\httpsupport\response\Response;
 use PHPUnit\Framework\Attributes\Test;
@@ -32,8 +33,9 @@ class ResponseTest extends TestCase
     {
         $response = new Response(SuccessCodes::OK, "Hello, world!");
 
-        $this->assertEquals('text/plain', $response->header('Content-Type'));
-        $this->assertEquals(13, $response->header('Content-Length'));
+        $this->assertSame(SuccessCodes::OK, $response->responseCode());
+        $this->assertSame('text/plain', $response->header('Content-Type'));
+        $this->assertSame("13", $response->header('Content-Length'));
     }
 
     #[Test]
@@ -44,15 +46,16 @@ class ResponseTest extends TestCase
             "Content-Length" => '12345',
         ]);
 
-        $this->assertEquals('text/plain', $response->header('Content-Type'));
-        $this->assertEquals(13, $response->header('Content-Length'));
+        $this->assertSame(SuccessCodes::OK, $response->responseCode());
+        $this->assertSame('text/plain', $response->header('Content-Type'));
+        $this->assertSame("13", $response->header('Content-Length'));
     }
 
     #[Test]
     public function itSetsWithCaseInsensitiveKeys(): void
     {
         $response = new Response(SuccessCodes::OK, "Hello, world!");
-        
+
         $response->setHeader("foo", "bar");
         $this->assertEquals("bar", $response->header("foo"));
         $response->setHeader("FOO", "baz");
@@ -85,17 +88,22 @@ class ResponseTest extends TestCase
     public function itInitialisesContentType(): void
     {
         $response = new Response(responseCode: SuccessCodes::OK, body: "Hello, world!", contentType: "text/plain");
-        
+
         $this->assertSame("text/plain", $response->contentType());
-        $this->assertNull( $response->contentEncoding());
+        $this->assertNull($response->contentEncoding());
         $this->assertSame("text/plain", $response->header("content-type"));
     }
 
     #[Test]
     public function itInitialisesContentTypeWithEncoding(): void
     {
-        $response = new Response(responseCode: SuccessCodes::OK, body: "Hello, world!", contentType: "text/plain", encoding: "utf-8");
-        
+        $response = new Response(
+            responseCode: SuccessCodes::OK,
+            body: "Hello, world!",
+            contentType: "text/plain",
+            encoding: "utf-8"
+        );
+
         $this->assertSame("text/plain", $response->contentType());
         $this->assertSame("utf-8", $response->contentEncoding());
         $this->assertSame("text/plain; charset=utf-8", $response->header("content-type"));
@@ -115,6 +123,33 @@ class ResponseTest extends TestCase
         $response = (new Response(SuccessCodes::OK, "Hello, world!"))
             ->setBody("The quick brown fox jumps over the lazy dog.");
 
+        $this->assertSame(44, $response->contentLength());
+    }
+
+    #[Test]
+    public function itUpdatesTheResponseCode(): void
+    {
+        $response = new Response(SuccessCodes::OK, "Hello, world!");
+        $this->assertSame(SuccessCodes::OK, $response->responseCode());
+        $response->setResponseCode(ServerErrorCodes::BAD_GATEWAY);
+        $this->assertSame(ServerErrorCodes::BAD_GATEWAY, $response->responseCode());
+    }
+
+    #[Test]
+    public function itSetsTheBody(): void
+    {
+        $response = new Response(SuccessCodes::OK, "Hello, world!");
+        $this->assertSame("Hello, world!", $response->body());
+        $response->setBody("The quick brown fox jumps over the lazy dog.");
+        $this->assertSame("The quick brown fox jumps over the lazy dog.", $response->body());
+    }
+
+    #[Test]
+    public function itUpdatesTheContentLengthWithTheBody(): void
+    {
+        $response = new Response(SuccessCodes::OK, "Hello, world!");
+        $this->assertSame(13, $response->contentLength());
+        $response->setBody("The quick brown fox jumps over the lazy dog.");
         $this->assertSame(44, $response->contentLength());
     }
 }

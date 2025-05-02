@@ -21,13 +21,12 @@ declare(strict_types=1);
 namespace gordonmcvey\httpsupport\request;
 
 use gordonmcvey\httpsupport\enum\Verbs;
+use gordonmcvey\httpsupport\request\payload\ArrayPayloadHandler;
+use gordonmcvey\httpsupport\request\payload\PayloadHandlerInterface;
+use JsonSerializable;
 
-/**
- * @phpstan-consistent-constructor
- */
-class Request implements RequestInterface, \JsonSerializable
+class Request implements RequestInterface, JsonSerializable
 {
-    private const string REQUEST_BODY_SOURCE = "php://input";
     private const string HEADER_PREFIX = "HTTP_";
     private const string REQUEST_URI = "REQUEST_URI";
     private const string REQUEST_METHOD = "REQUEST_METHOD";
@@ -49,52 +48,27 @@ class Request implements RequestInterface, \JsonSerializable
 
     private ?Verbs $verb = null;
 
-    private string|false|null $body = null;
-
     /**
      * Class constructor
      *
-     * For the BodyFactory argument, you can provide either a factory that will extract the body on first invokation
-     * (thus allowing lazy evaluation of the request body), the literal body string (as either a string or a Stringable
-     * object), or null (if you aren't going to be using the body for the request you're handling)
-     *
-     * If you pass in a bodyFactory value that is both Callable and Stringable, then it will be treated as a Callable
-     *
-     * Note that if you pass in a Stringable, it will be evaluated on instantiation, not on the first call to
-     * Request::body(), so it is recommended that you don't use Stringables that do a lot of heavy lifting, especially
-     * if not all requests will require you to access the request body
-     *
      * @param array<string, mixed> $queryParams
-     * @param array<string, mixed> $payloadParams
      * @param array<string, mixed> $cookieParams
      * @param array<string, array{
      *     name: string,
      *     type: string,
      *     size: non-negative-int,
      *     tmp_name: string,
-     *     error_code: non-negative-int
-     * }> $fileParams
+     *     error_code: non-negative-int }> $fileParams
      * @param array<string, mixed> $serverParams
-     * @param callable|string|null $bodyFactory Data source for the request body (if any)
-     * @todo Handle Files
+     * @param PayloadHandlerInterface $payloadHandler
      */
     public function __construct(
         private readonly array $queryParams,
-        private readonly array $payloadParams,
         private readonly array $cookieParams,
         private readonly array $fileParams,
         private readonly array $serverParams,
-        private readonly mixed $bodyFactory = null,
+        private readonly PayloadHandlerInterface $payloadHandler,
     ) {
-        // We can't enforce callables by type-hinting for some reason that I'm sure must make sense to somebody
-        $factoryIsCallable = is_callable($bodyFactory);
-        $factoryIsStringable = is_string($bodyFactory) || $bodyFactory instanceof \Stringable;
-
-        if (null !== $bodyFactory && !$factoryIsCallable && !$factoryIsStringable) {
-            throw new \TypeError("Body factory must be callable");
-        }
-
-        $factoryIsCallable || !$factoryIsStringable || $this->body = (string) $bodyFactory;
     }
 
     public function headers(): array
@@ -134,7 +108,7 @@ class Request implements RequestInterface, \JsonSerializable
 
     public function uri(): string
     {
-        return $this->serverParams[self::REQUEST_URI];
+        return $this->serverParams[self::REQUEST_URI] ?? "/";
     }
 
     public function verb(): Verbs
@@ -153,7 +127,7 @@ class Request implements RequestInterface, \JsonSerializable
 
     public function payloadParam(string $name, mixed $default = null): mixed
     {
-        return $this->payloadParams[$name] ?? $default;
+        return $this->payloadHandler->param($name, $default);
     }
 
     public function cookieParam(string $name, mixed $default = null): mixed
@@ -178,19 +152,12 @@ class Request implements RequestInterface, \JsonSerializable
 
     public function body(): ?string
     {
-        if (null === $this->body) {
-            $this->body = is_callable($this->bodyFactory) ?
-                ($this->bodyFactory)() :
-                false;
-        }
-
-        return $this->body ?: null;
+        return $this->payloadHandler->body();
     }
 
     /**
      * @return array{
      *     queryParams: array<string, mixed>,
-     *     payloadParams: array<string, mixed>,
      *     cookieParams: array<string, mixed>,
      *     fileParams: array<string, array<string, mixed>>,
      *     serverParams: array<string, mixed>
@@ -200,7 +167,7 @@ class Request implements RequestInterface, \JsonSerializable
     {
         return [
             "queryParams"   => $this->queryParams,
-            "payloadParams" => $this->payloadParams,
+            // "payloadParams" => $this->payloadParams,
             "cookieParams"  => $this->cookieParams,
             "fileParams"    => $this->fileParams,
             "serverParams"  => $this->serverParams,
@@ -209,7 +176,7 @@ class Request implements RequestInterface, \JsonSerializable
 
     /**
      * This code is based on the V2 JAPI header logic, which in turn seems to be loosely based on a comment from the
-     * PHP manual (the getallheaders function is only guaranteed to exist if PHP is running under Apache)
+     * PHP manual (the getallheaders() function is only guaranteed to exist if PHP is running under Apache)
      *
      * @return array<string, mixed>
      * @link https://www.php.net/manual/en/function.getallheaders.php
@@ -222,7 +189,7 @@ class Request implements RequestInterface, \JsonSerializable
         foreach ($this->serverParams as $key => $value) {
             $isSpecialHeader = isset(self::SPECIAL_HEADER_KEYS[$key]);
 
-            if (0 === strpos($key, self::HEADER_PREFIX) || $isSpecialHeader) {
+            if (str_starts_with($key, self::HEADER_PREFIX) || $isSpecialHeader) {
                 $headerKey = str_replace(' ', self::COOKED_HEADER_KEY_SEP, ucwords(
                     strtolower(str_replace(self::RAW_HEADER_KEY_SEP, ' ', $key))
                 ));
@@ -239,26 +206,15 @@ class Request implements RequestInterface, \JsonSerializable
 
     /**
      * Factory method to populate a Request instance from the PHP request
-     *
-     * @param callable|string|null $bodyFactory Data source for the request body (if any)
      */
-    public static function fromSuperGlobals(mixed $bodyFactory = null): static
+    public static function fromSuperGlobals(?PayloadHandlerInterface $payloadFactory = null): self
     {
-        null !== $bodyFactory || $bodyFactory = static::defaultBodyFactory(...);
-
-        return new static(
+        return new self(
             $_GET,
-            $_POST,
             $_COOKIE,
             $_FILES,
             $_SERVER,
-            $bodyFactory,
+            $payloadFactory ?? new ArrayPayloadHandler($_POST),
         );
-    }
-
-    protected static function defaultBodyFactory(): ?string
-    {
-        $requestBody = file_get_contents(self::REQUEST_BODY_SOURCE);
-        return false !== $requestBody ? $requestBody : null;
     }
 }

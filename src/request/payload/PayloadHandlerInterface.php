@@ -18,11 +18,11 @@
 
 declare(strict_types=1);
 
-namespace gordonmcvey\httpsupport\request;
+namespace gordonmcvey\httpsupport\request\payload;
 
-interface JsonRequestInterface extends RequestInterface
+interface PayloadHandlerInterface
 {
-    public function jsonBody(): mixed;
+    public function param(string $name, mixed $default = null): mixed;
 
-    public function jsonParam(string $key, mixed $default = null): mixed;
+    public function body(): ?string;
 }

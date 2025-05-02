@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 /**
  * Copyright © 2025 Gordon McVey
@@ -20,6 +20,7 @@ declare(strict_types=1);
 
 namespace gordonmcvey\httpsupport\test\unit\enum\factory;
 
+use Exception;
 use gordonmcvey\httpsupport\enum\factory\StatusCodeFactory;
 use gordonmcvey\httpsupport\enum\statuscodes\ClientErrorCodes;
 use gordonmcvey\httpsupport\enum\statuscodes\InfoCodes;
@@ -61,11 +62,11 @@ class StatusCodeFactoryTest extends TestCase
         $factory = new StatusCodeFactory();
         $this->assertSame(
             ClientErrorCodes::CONFLICT,
-            $factory->fromThrowable(new \Exception(code: ClientErrorCodes::CONFLICT->value)),
+            $factory->fromThrowable(new Exception(code: ClientErrorCodes::CONFLICT->value)),
         );
         $this->assertSame(
             ServerErrorCodes::BAD_GATEWAY,
-            $factory->fromThrowable(new \Exception(code: ServerErrorCodes::BAD_GATEWAY->value)),
+            $factory->fromThrowable(new Exception(code: ServerErrorCodes::BAD_GATEWAY->value)),
         );
     }
 
@@ -75,15 +76,15 @@ class StatusCodeFactoryTest extends TestCase
         $factory = new StatusCodeFactory();
         $this->assertSame(
             ServerErrorCodes::INTERNAL_SERVER_ERROR,
-            $factory->fromThrowable(new \Exception(code: 0)),
+            $factory->fromThrowable(new Exception(code: 0)),
         );
         $this->assertSame(
             ServerErrorCodes::INTERNAL_SERVER_ERROR,
-            $factory->fromThrowable(new \Exception(code: 399)),
+            $factory->fromThrowable(new Exception(code: 399)),
         );
         $this->assertSame(
             ServerErrorCodes::INTERNAL_SERVER_ERROR,
-            $factory->fromThrowable(new \Exception(code: 600)),
+            $factory->fromThrowable(new Exception(code: 600)),
         );
     }
 }
