@@ -153,7 +153,7 @@ class Response implements ResponseInterface, Stringable
         return $this;
     }
 
-    public function __tostring(): string
+    public function __toString(): string
     {
         // @todo User-configurable HTTP version
         $string = new ResponseStatusHeader(1.1, $this->responseCode) . self::NEWLINE;
