@@ -24,6 +24,7 @@ use gordonmcvey\httpsupport\enum\Verbs;
 use gordonmcvey\httpsupport\request\payload\ArrayPayloadHandler;
 use gordonmcvey\httpsupport\request\payload\PayloadHandlerInterface;
 use JsonSerializable;
+use TypeError;
 
 class Request implements RequestInterface, JsonSerializable
 {
@@ -172,6 +173,30 @@ class Request implements RequestInterface, JsonSerializable
             "fileParams"    => $this->fileParams,
             "serverParams"  => $this->serverParams,
         ];
+    }
+
+    public function __toString(): string
+    {
+        $headerString = "";
+
+        foreach ($this->headers() as $key => $value) {
+            $headerString .= "$key: $value\n";
+        }
+
+        $verb = "(Unknown verb)";
+        try {
+            $verb = $this->verb()->value;
+        } catch (TypeError $e) {
+            // Nothing to do, just eat the exception
+        }
+
+        return trim(sprintf(
+            "%s %s\n%s\n%s",
+            $verb,
+            $this->uri(),
+            $headerString,
+            $this->payloadHandler->body(),
+        ));
     }
 
     /**
