@@ -174,6 +174,23 @@ class Request implements RequestInterface, JsonSerializable
         ];
     }
 
+    public function __toString(): string
+    {
+        $headerString = "";
+
+        foreach ($this->headers() as $key => $value) {
+            $headerString .= "$key: $value\n";
+        }
+
+        return trim(sprintf(
+            "%s %s\n%s\n%s",
+            Verbs::tryFrom($this->serverParam(self::REQUEST_METHOD) ?? "")->value ?? "(Unknown verb)",
+            $this->uri(),
+            $headerString,
+            $this->payloadHandler->body(),
+        ));
+    }
+
     /**
      * This code is based on the V2 JAPI header logic, which in turn seems to be loosely based on a comment from the
      * PHP manual (the getallheaders() function is only guaranteed to exist if PHP is running under Apache)

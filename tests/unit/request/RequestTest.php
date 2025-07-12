@@ -477,4 +477,32 @@ class RequestTest extends TestCase
         $this->assertSame(Request::class, get_class($request));
         $this->assertSame('{"foo":"bar","baz":"quux"}', $request->body());
     }
+
+    #[Test]
+    public function itCanBeCastToString(): void
+    {
+        $payloadHandler = $this->createMock(PayloadHandlerInterface::class);
+        $payloadHandler->method("body")->willReturn("This is the body");
+
+        $expectedAsString = "GET /foo/bar?baz=quux\n"
+                          . "Header-1: Foo\n"
+                          . "Header-2: Bar\n\n"
+                          . "This is the body";
+
+        $request = new Request(
+            queryParams: [],
+            cookieParams: [],
+            fileParams: [],
+            serverParams: [
+                "REQUEST_URI" => "/foo/bar?baz=quux",
+                "REQUEST_METHOD" => "GET",
+                "HTTP_HEADER_1" => "Foo",
+                "HTTP_HEADER_2" => "Bar",
+            ],
+            payloadHandler: $payloadHandler,
+        );
+
+        // implicit __toString() call
+        $this->assertEquals($expectedAsString, $request);
+    }
 }
