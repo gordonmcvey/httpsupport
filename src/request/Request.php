@@ -23,9 +23,8 @@ namespace gordonmcvey\httpsupport\request;
 use gordonmcvey\httpsupport\enum\Verbs;
 use gordonmcvey\httpsupport\request\payload\ArrayPayloadHandler;
 use gordonmcvey\httpsupport\request\payload\PayloadHandlerInterface;
-use JsonSerializable;
 
-class Request implements RequestInterface, JsonSerializable
+class Request implements RequestInterface
 {
     private const string HEADER_PREFIX = "HTTP_";
     private const string REQUEST_URI = "REQUEST_URI";
@@ -153,25 +152,6 @@ class Request implements RequestInterface, JsonSerializable
     public function body(): ?string
     {
         return $this->payloadHandler->body();
-    }
-
-    /**
-     * @return array{
-     *     queryParams: array<string, mixed>,
-     *     cookieParams: array<string, mixed>,
-     *     fileParams: array<string, array<string, mixed>>,
-     *     serverParams: array<string, mixed>
-     * }
-     */
-    public function jsonSerialize(): array
-    {
-        return [
-            "queryParams"   => $this->queryParams,
-            // "payloadParams" => $this->payloadParams,
-            "cookieParams"  => $this->cookieParams,
-            "fileParams"    => $this->fileParams,
-            "serverParams"  => $this->serverParams,
-        ];
     }
 
     public function __toString(): string
