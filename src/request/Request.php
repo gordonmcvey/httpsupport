@@ -23,8 +23,9 @@ namespace gordonmcvey\httpsupport\request;
 use gordonmcvey\httpsupport\enum\Verbs;
 use gordonmcvey\httpsupport\request\payload\ArrayPayloadHandler;
 use gordonmcvey\httpsupport\request\payload\PayloadHandlerInterface;
+use Stringable;
 
-class Request implements RequestInterface
+class Request implements RequestInterface, Stringable
 {
     private const string HEADER_PREFIX = "HTTP_";
     private const string REQUEST_URI = "REQUEST_URI";
