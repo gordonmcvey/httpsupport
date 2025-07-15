@@ -43,8 +43,6 @@ interface ResponseInterface
      */
     public function headers(): array;
 
-    public function sendHeaders(): self;
-
     public function body(): string;
 
     public function setBody(string $body): self;

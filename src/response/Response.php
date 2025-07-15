@@ -142,17 +142,6 @@ class Response implements ResponseInterface, Stringable
         return $this->contentLength;
     }
 
-    public function sendHeaders(): self
-    {
-        http_response_code($this->responseCode->value);
-
-        foreach ($this->headers as $headerKey => $headerValue) {
-            header(sprintf("%s: %s", $headerKey, $headerValue));
-        }
-
-        return $this;
-    }
-
     public function __toString(): string
     {
         // @todo User-configurable HTTP version
