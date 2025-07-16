@@ -26,18 +26,29 @@ class ResponseSender implements ResponseSenderInterface
 {
     public function send(ResponseInterface $response): self
     {
-        $this->sendHeaders($response);
-        echo $response->body();
+        $this
+            ->sendHeaders($response)
+            ->sendBody($response)
+        ;
 
         return $this;
     }
 
-    private function sendHeaders(REsponseInterface $response): void
+    public function sendHeaders(ResponseInterface $response): self
     {
         http_response_code($response->responseCode()->value);
 
         foreach ($response->headers() as $headerKey => $headerValue) {
             header(sprintf("%s: %s", $headerKey, $headerValue));
         }
+
+        return $this;
+    }
+
+    public function sendBody(ResponseInterface $response): self
+    {
+        echo $response->body();
+
+        return $this;
     }
 }

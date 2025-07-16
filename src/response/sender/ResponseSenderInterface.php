@@ -25,4 +25,8 @@ use gordonmcvey\httpsupport\response\ResponseInterface;
 interface ResponseSenderInterface
 {
     public function send(ResponseInterface $response): self;
+
+    public function sendHeaders(ResponseInterface $response): self;
+
+    public function sendBody(ResponseInterface $response): self;
 }
