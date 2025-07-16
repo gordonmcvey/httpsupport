@@ -484,10 +484,10 @@ class RequestTest extends TestCase
         $payloadHandler = $this->createMock(PayloadHandlerInterface::class);
         $payloadHandler->method("body")->willReturn("This is the body");
 
-        $expectedAsString = "GET /foo/bar?baz=quux\n"
-                          . "Header-1: Foo\n"
-                          . "Header-2: Bar\n\n"
-                          . "This is the body";
+        $expectedRequest = "GET /foo/bar?baz=quux\n"
+            . "Header-1: Foo\n"
+            . "Header-2: Bar\n\n"
+            . "This is the body";
 
         $request = new Request(
             queryParams: [],
@@ -503,6 +503,6 @@ class RequestTest extends TestCase
         );
 
         // implicit __toString() call
-        $this->assertEquals($expectedAsString, $request);
+        $this->assertEquals($expectedRequest, $request);
     }
 }
