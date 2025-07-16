@@ -152,4 +152,26 @@ class ResponseTest extends TestCase
         $response->setBody("The quick brown fox jumps over the lazy dog.");
         $this->assertSame(44, $response->contentLength());
     }
+
+    #[Test]
+    public function itCanBeCastToString(): void
+    {
+        $expectedResponse = "HTTP/1.1 200 OK\r\n"
+            . "Content-Type: text/plain\r\n"
+            . "Content-Length: 13\r\n"
+            . "lowercase: Lower-case header\r\n"
+            . "UPPERCASE: Upper-case header\r\n"
+            . "camelCase: Camel-case header\r\n"
+            . "mIXEdcAsE: Mixed-case header\r\n\r\n"
+            . "Hello, world!";
+
+        $response = new Response(SuccessCodes::OK, "Hello, world!");
+
+        $response->setHeader("lowercase", "Lower-case header");
+        $response->setHeader("UPPERCASE", "Upper-case header");
+        $response->setHeader("camelCase", "Camel-case header");
+        $response->setHeader("mIXEdcAsE", "Mixed-case header");
+
+        $this->assertEquals($expectedResponse, $response);
+    }
 }
