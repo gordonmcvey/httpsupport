@@ -21,7 +21,7 @@ declare(strict_types=1);
 namespace gordonmcvey\httpsupport\test\unit\request;
 
 use gordonmcvey\httpsupport\enum\Verbs;
-use gordonmcvey\httpsupport\request\payload\PayloadHandlerInterface;
+use gordonmcvey\httpsupport\interface\request\PayloadHandlerInterface;
 use gordonmcvey\httpsupport\request\Request;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;

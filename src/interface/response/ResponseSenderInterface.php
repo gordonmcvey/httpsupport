@@ -18,9 +18,7 @@
 
 declare(strict_types=1);
 
-namespace gordonmcvey\httpsupport\response\sender;
-
-use gordonmcvey\httpsupport\response\ResponseInterface;
+namespace gordonmcvey\httpsupport\interface\response;
 
 interface ResponseSenderInterface
 {

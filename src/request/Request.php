@@ -21,8 +21,9 @@ declare(strict_types=1);
 namespace gordonmcvey\httpsupport\request;
 
 use gordonmcvey\httpsupport\enum\Verbs;
+use gordonmcvey\httpsupport\interface\request\PayloadHandlerInterface;
+use gordonmcvey\httpsupport\interface\request\RequestInterface;
 use gordonmcvey\httpsupport\request\payload\ArrayPayloadHandler;
-use gordonmcvey\httpsupport\request\payload\PayloadHandlerInterface;
 use Stringable;
 
 class Request implements RequestInterface, Stringable

@@ -20,6 +20,7 @@ declare(strict_types=1);
 
 namespace gordonmcvey\httpsupport\request\payload;
 
+use gordonmcvey\httpsupport\interface\request\PayloadHandlerInterface;
 use JsonException;
 
 class JsonPayloadHandler implements PayloadHandlerInterface

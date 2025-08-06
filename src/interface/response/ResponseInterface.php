@@ -18,7 +18,7 @@
 
 declare(strict_types=1);
 
-namespace gordonmcvey\httpsupport\response;
+namespace gordonmcvey\httpsupport\interface\response;
 
 use gordonmcvey\httpsupport\enum\statuscodes\ClientErrorCodes;
 use gordonmcvey\httpsupport\enum\statuscodes\InfoCodes;

@@ -20,7 +20,8 @@ declare(strict_types=1);
 
 namespace gordonmcvey\httpsupport\response\sender;
 
-use gordonmcvey\httpsupport\response\ResponseInterface;
+use gordonmcvey\httpsupport\interface\response\ResponseInterface;
+use gordonmcvey\httpsupport\interface\response\ResponseSenderInterface;
 
 class ResponseSender implements ResponseSenderInterface
 {

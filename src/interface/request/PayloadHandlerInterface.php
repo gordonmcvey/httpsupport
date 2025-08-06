@@ -18,7 +18,7 @@
 
 declare(strict_types=1);
 
-namespace gordonmcvey\httpsupport\request\payload;
+namespace gordonmcvey\httpsupport\interface\request;
 
 interface PayloadHandlerInterface
 {

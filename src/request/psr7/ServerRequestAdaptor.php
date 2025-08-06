@@ -21,7 +21,7 @@ declare(strict_types=1);
 namespace gordonmcvey\httpsupport\request\psr7;
 
 use gordonmcvey\httpsupport\enum\Verbs;
-use gordonmcvey\httpsupport\request\RequestInterface;
+use gordonmcvey\httpsupport\interface\request\RequestInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
 class ServerRequestAdaptor implements RequestInterface

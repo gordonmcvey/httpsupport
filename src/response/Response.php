@@ -25,6 +25,7 @@ use gordonmcvey\httpsupport\enum\statuscodes\InfoCodes;
 use gordonmcvey\httpsupport\enum\statuscodes\RedirectCodes;
 use gordonmcvey\httpsupport\enum\statuscodes\ServerErrorCodes;
 use gordonmcvey\httpsupport\enum\statuscodes\SuccessCodes;
+use gordonmcvey\httpsupport\interface\response\ResponseInterface;
 use Stringable;
 
 class Response implements ResponseInterface, Stringable

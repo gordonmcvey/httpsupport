@@ -25,7 +25,7 @@ use gordonmcvey\httpsupport\enum\statuscodes\InfoCodes;
 use gordonmcvey\httpsupport\enum\statuscodes\RedirectCodes;
 use gordonmcvey\httpsupport\enum\statuscodes\ServerErrorCodes;
 use gordonmcvey\httpsupport\enum\statuscodes\SuccessCodes;
-use gordonmcvey\httpsupport\response\ResponseInterface;
+use gordonmcvey\httpsupport\interface\response\ResponseInterface;
 use gordonmcvey\httpsupport\response\sender\ResponseSender;
 use Iterator;
 use PHPUnit\Framework\Attributes\DataProvider;

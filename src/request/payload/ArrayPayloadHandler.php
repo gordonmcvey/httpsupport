@@ -20,6 +20,8 @@ declare(strict_types=1);
 
 namespace gordonmcvey\httpsupport\request\payload;
 
+use gordonmcvey\httpsupport\interface\request\PayloadHandlerInterface;
+
 readonly class ArrayPayloadHandler implements PayloadHandlerInterface
 {
     /**

@@ -18,7 +18,7 @@
 
 declare(strict_types=1);
 
-namespace gordonmcvey\httpsupport\request;
+namespace gordonmcvey\httpsupport\interface\request;
 
 use gordonmcvey\httpsupport\enum\Verbs;
 
