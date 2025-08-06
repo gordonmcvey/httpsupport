@@ -18,11 +18,26 @@
 
 declare(strict_types=1);
 
-namespace gordonmcvey\httpsupport;
+namespace gordonmcvey\httpsupport\request\payload;
 
-interface JsonRequestInterface extends RequestInterface
+use gordonmcvey\httpsupport\interface\request\PayloadHandlerInterface;
+
+readonly class ArrayPayloadHandler implements PayloadHandlerInterface
 {
-    public function jsonBody(): mixed;
+    /**
+     * @param array<array-key, mixed> $postParams
+     */
+    public function __construct(private array $postParams)
+    {
+    }
 
-    public function jsonParam(string $key, mixed $default = null): mixed;
+    public function param(string $name, mixed $default = null): mixed
+    {
+        return $this->postParams[$name] ?? $default;
+    }
+
+    public function body(): ?string
+    {
+        return null;
+    }
 }

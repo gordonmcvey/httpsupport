@@ -18,7 +18,7 @@
 
 declare(strict_types=1);
 
-namespace gordonmcvey\httpsupport;
+namespace gordonmcvey\httpsupport\interface\response;
 
 use gordonmcvey\httpsupport\enum\statuscodes\ClientErrorCodes;
 use gordonmcvey\httpsupport\enum\statuscodes\InfoCodes;
@@ -42,8 +42,6 @@ interface ResponseInterface
      * @return array<string, string>
      */
     public function headers(): array;
-
-    public function sendHeaders(): self;
 
     public function body(): string;
 

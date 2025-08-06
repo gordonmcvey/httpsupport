@@ -12,7 +12,7 @@
          failOnWarning="true">
     <testsuites>
         <testsuite name="default">
-            <directory>tests/gordonmcvey/httpsupport/test</directory>
+            <directory>tests</directory>
         </testsuite>
     </testsuites>
 

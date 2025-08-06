@@ -18,13 +18,14 @@
 
 declare(strict_types=1);
 
-namespace gordonmcvey\httpsupport;
+namespace gordonmcvey\httpsupport\response;
 
 use gordonmcvey\httpsupport\enum\statuscodes\ClientErrorCodes;
 use gordonmcvey\httpsupport\enum\statuscodes\InfoCodes;
 use gordonmcvey\httpsupport\enum\statuscodes\RedirectCodes;
 use gordonmcvey\httpsupport\enum\statuscodes\ServerErrorCodes;
 use gordonmcvey\httpsupport\enum\statuscodes\SuccessCodes;
+use gordonmcvey\httpsupport\interface\response\ResponseInterface;
 use Stringable;
 
 class Response implements ResponseInterface, Stringable
@@ -142,18 +143,7 @@ class Response implements ResponseInterface, Stringable
         return $this->contentLength;
     }
 
-    public function sendHeaders(): self
-    {
-        http_response_code($this->responseCode->value);
-
-        foreach ($this->headers as $headerKey => $headerValue) {
-            header(sprintf("%s: %s", $headerKey, $headerValue));
-        }
-
-        return $this;
-    }
-
-    public function __tostring(): string
+    public function __toString(): string
     {
         // @todo User-configurable HTTP version
         $string = new ResponseStatusHeader(1.1, $this->responseCode) . self::NEWLINE;

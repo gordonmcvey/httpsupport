@@ -18,17 +18,22 @@
 
 declare(strict_types=1);
 
-namespace gordonmcvey\httpsupport\test\unit;
+namespace gordonmcvey\httpsupport\test\unit\request;
 
 use gordonmcvey\httpsupport\enum\Verbs;
-use gordonmcvey\httpsupport\Request;
+use gordonmcvey\httpsupport\interface\request\PayloadHandlerInterface;
+use gordonmcvey\httpsupport\request\Request;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\MockObject\Exception;
 use PHPUnit\Framework\TestCase;
-use Stringable;
+use ValueError;
 
 class RequestTest extends TestCase
 {
+    /**
+     * @throws Exception
+     */
     #[Test]
     public function itCanReturnSpecificHeader(): void
     {
@@ -39,20 +44,26 @@ class RequestTest extends TestCase
             "ignore_this_header" => "quux",
         ];
 
-        $request = new Request([], [], [], [], $serverParams, null);
+        $request = new Request([], [], [], $serverParams, $this->createMock(PayloadHandlerInterface::class));
         $this->assertSame("foo", $request->header("Header-One"));
         $this->assertSame("bar", $request->header("Header-Two"));
     }
 
+    /**
+     * @throws Exception
+     */
     #[Test]
     public function itCanReturnDefaultValueForUnsetHeader(): void
     {
-        $request = new Request([], [], [], [], [], null);
+        $request = new Request([], [], [], [], $this->createMock(PayloadHandlerInterface::class));
         $this->assertSame("MyDefault", $request->header("Header-One", "MyDefault"));
     }
 
+    /**
+     * @throws Exception
+     */
     #[Test]
-    public function itcannotReturnImproperlyNamedHeader(): void
+    public function itCannotReturnImproperlyNamedHeader(): void
     {
         $serverParams = [
             "HTTP_HEADER_ONE"    => "foo",
@@ -61,12 +72,15 @@ class RequestTest extends TestCase
             "ignore_this_header" => "quux",
         ];
 
-        $request = new Request([], [], [], [], $serverParams, null);
+        $request = new Request([], [], [], $serverParams, $this->createMock(PayloadHandlerInterface::class));
         $this->assertNull($request->header("Ignore-This-Header"));
     }
 
+    /**
+     * @throws Exception
+     */
     #[Test]
-    public function itcannotReturnImproperlyCasedHeader(): void
+    public function itCannotReturnImproperlyCasedHeader(): void
     {
         $serverParams = [
             "HTTP_HEADER_ONE"    => "foo",
@@ -75,10 +89,13 @@ class RequestTest extends TestCase
             "ignore_this_header" => "quux",
         ];
 
-        $request = new Request([], [], [], [], $serverParams, null);
+        $request = new Request([], [], [], $serverParams, $this->createMock(PayloadHandlerInterface::class));
         $this->assertNull($request->header("Header-Three"));
     }
 
+    /**
+     * @throws Exception
+     */
     #[Test]
     public function itCanReturnAllHeaders(): void
     {
@@ -93,10 +110,13 @@ class RequestTest extends TestCase
             "Header-Two" => "bar",
         ];
 
-        $request = new Request([], [], [], [], $serverParams, null);
+        $request = new Request([], [], [], $serverParams, $this->createMock(PayloadHandlerInterface::class));
         $this->assertEquals($expectations, $request->headers());
     }
 
+    /**
+     * @throws Exception
+     */
     #[Test]
     public function itCanAddAnHeader(): void
     {
@@ -105,13 +125,16 @@ class RequestTest extends TestCase
             "HTTP_HEADER_TWO" => "bar",
         ];
 
-        $request = new Request([], [], [], [], $serverParams, null);
+        $request = new Request([], [], [], $serverParams, $this->createMock(PayloadHandlerInterface::class));
 
         $this->assertNull($request->header("Header-Three"));
         $request->setHeader("Header-Three", "baz");
         $this->assertSame("baz", $request->header("Header-Three"));
     }
 
+    /**
+     * @throws Exception
+     */
     #[Test]
     public function itCanReplaceHeader(): void
     {
@@ -120,13 +143,16 @@ class RequestTest extends TestCase
             "HTTP_HEADER_TWO"    => "bar",
         ];
 
-        $request = new Request([], [], [], [], $serverParams, null);
+        $request = new Request([], [], [], $serverParams, $this->createMock(PayloadHandlerInterface::class));
 
         $this->assertSame("bar", $request->header("Header-Two"));
         $request->setHeader("Header-Two", "baz");
         $this->assertSame("baz", $request->header("Header-Two"));
     }
 
+    /**
+     * @throws Exception
+     */
     #[Test]
     public function itCanReturnTheUri(): void
     {
@@ -134,10 +160,13 @@ class RequestTest extends TestCase
             "REQUEST_URI" => "/foo/bar?baz"
         ];
 
-        $request = new Request([], [], [], [], $serverParams, null);
+        $request = new Request([], [], [], $serverParams, $this->createMock(PayloadHandlerInterface::class));
         $this->assertSame("/foo/bar?baz", $request->uri());
     }
 
+    /**
+     * @throws Exception
+     */
     #[Test]
     #[DataProvider("provideVerbs")]
     public function itCanReturnTheVerb(Verbs $verb): void
@@ -146,10 +175,13 @@ class RequestTest extends TestCase
             "REQUEST_METHOD" => $verb->value,
         ];
 
-        $request = new Request([], [], [], [], $serverParams, null);
+        $request = new Request([], [], [], $serverParams, $this->createMock(PayloadHandlerInterface::class));
         $this->assertSame($verb, $request->verb());
     }
 
+    /**
+     * @return array<string, array<string, Verbs>>
+     */
     public static function provideVerbs(): array
     {
         $cases = [];
@@ -161,6 +193,9 @@ class RequestTest extends TestCase
         return $cases;
     }
 
+    /**
+     * @throws Exception
+     */
     #[Test]
     public function itWillThrowOnInvalidVerb(): void
     {
@@ -168,11 +203,14 @@ class RequestTest extends TestCase
             "REQUEST_METHOD" => "Farble warble garble"
         ];
 
-        $request = new Request([], [], [], [], $serverParams, null);
-        $this->expectException(\ValueError::class);
+        $request = new Request([], [], [], $serverParams, $this->createMock(PayloadHandlerInterface::class));
+        $this->expectException(ValueError::class);
         $request->verb();
     }
 
+    /**
+     * @throws Exception
+     */
     #[Test]
     public function itCanGetParamFromQuery(): void
     {
@@ -181,46 +219,63 @@ class RequestTest extends TestCase
             "baz" => "quux",
         ];
 
-        $request = new Request($queryParams, [], [], [], [], null);
-        $this->assertSame("bar", $request->param("foo"));
-        $this->assertSame("quux", $request->param("baz"));
+        $request = new Request($queryParams, [], [], [], $this->createMock(PayloadHandlerInterface::class));
         $this->assertSame("bar", $request->queryParam("foo"));
         $this->assertSame("quux", $request->queryParam("baz"));
     }
 
+    /**
+     * @throws Exception
+     */
     #[Test]
     public function itCanReturnDefaultValueForUnsetQueryParam(): void
     {
-        $request = new Request([], [], [], [], [], null);
-        $this->assertSame("bar", $request->param("foo", "bar"));
+        $request = new Request([], [], [], [], $this->createMock(PayloadHandlerInterface::class));
         $this->assertSame("bar", $request->queryParam("foo", "bar"));
-        $this->assertNull($request->param("foo",));
         $this->assertNull($request->queryParam("foo"));
     }
 
+    /**
+     * @throws Exception
+     */
     #[Test]
-    public function itCanGetParamFromPost(): void
+    public function itCanGetParamFromPayload(): void
     {
-        $postParams = [
-            "foo" => "bar",
-            "baz" => "quux",
-        ];
+        $payload = $this->createMock(PayloadHandlerInterface::class);
+        $payload->expects($this->any())
+            ->method("param")
+            ->willReturnMap([
+                ["foo", null, "bar"],
+                ["baz", null, "quux"],
+            ])
+        ;
 
-        $request = new Request([], $postParams, [], [], [], null);
-        $this->assertSame("bar", $request->param("foo"));
-        $this->assertSame("quux", $request->param("baz"));
-        $this->assertSame("bar", $request->postParam("foo"));
-        $this->assertSame("quux", $request->postParam("baz"));
+        $request = new Request([], [], [], [], $payload);
+        $this->assertSame("bar", $request->payloadParam("foo"));
+        $this->assertSame("quux", $request->payloadParam("baz"));
     }
 
+    /**
+     * @throws Exception
+     */
     #[Test]
-    public function itCanReturnDefaultValueForUnsetPostParam(): void
+    public function itCanReturnDefaultValueForUnsetPayloadParams(): void
     {
-        $request = new Request([], [], [], [], [], null);
-        $this->assertSame("bar", $request->param("foo", "bar"));
-        $this->assertSame("bar", $request->postParam("foo", "bar"));
+        $payload = $this->createMock(PayloadHandlerInterface::class);
+        $payload->expects($this->any())
+            ->method("param")
+            ->willReturnMap([
+                ["foo", "bar", "bar"],
+            ])
+        ;
+
+        $request = new Request([], [], [], [], $payload);
+        $this->assertSame("bar", $request->payloadParam("foo", "bar"));
     }
 
+    /**
+     * @throws Exception
+     */
     #[Test]
     public function itCanGetParamFromCookie(): void
     {
@@ -229,24 +284,24 @@ class RequestTest extends TestCase
             "baz" => "quux",
         ];
 
-        $request = new Request([], [], $cookieParams, [], [], null);
+        $request = new Request([], $cookieParams, [], [], $this->createMock(PayloadHandlerInterface::class));
         $this->assertSame("bar", $request->cookieParam("foo"));
         $this->assertSame("quux", $request->cookieParam("baz"));
-
-        // Cookies shouldn't end up in general params
-        $this->assertNull($request->param("foo"));
-        $this->assertNull($request->param("baz"));
     }
 
+    /**
+     * @throws Exception
+     */
     #[Test]
     public function itCanReturnDefaultValueForUnsetCookieParam(): void
     {
-        $request = new Request([], [], [], [], [], null);
-
-        $this->assertSame("bar", $request->param("foo", "bar"));
+        $request = new Request([], [], [], [], $this->createMock(PayloadHandlerInterface::class));
         $this->assertSame("bar", $request->cookieParam("foo", "bar"));
     }
 
+    /**
+     * @throws Exception
+     */
     #[Test]
     public function itCanGetParamFromServer(): void
     {
@@ -257,57 +312,26 @@ class RequestTest extends TestCase
             "ignore_this_header" => "quux",
         ];
 
-        $request = new Request([], [], [], [], $serverParams, null);
+        $request = new Request([], [], [], $serverParams, $this->createMock(PayloadHandlerInterface::class));
         $this->assertSame("foo", $request->serverParam("HTTP_HEADER_ONE"));
         $this->assertSame("bar", $request->serverParam("HTTP_HEADER_TWO"));
         $this->assertSame("baz", $request->serverParam("http_header_three"));
         $this->assertSame("quux", $request->serverParam("ignore_this_header"));
     }
 
+    /**
+     * @throws Exception
+     */
     #[Test]
     public function itCanReturnDefaultValueForUnsetServerParam(): void
     {
-        $request = new Request([], [], [], [], [], null);
+        $request = new Request([], [], [], [], $this->createMock(PayloadHandlerInterface::class));
         $this->assertSame("bar", $request->serverParam("foo", "bar"));
     }
 
-    #[Test]
-    public function itCanGetParamsFromTheCorrectSource(): void
-    {
-        $queryParams = [
-            "param1" => "queryValue1",
-            "param4" => "queryValue4",
-        ];
-        $postParams = [
-            "param1" => "postValue1",
-            "param2" => "postValue2",
-            "param5" => "postValue5",
-        ];
-        // Cookies should have no bearing on param()
-        $cookieParams = [
-            "param1" => "cookieValue1",
-            "param2" => "cookieValue2",
-            "param3" => "cookieValue3",
-            "param6" => "cookieValue6",
-        ];
-
-        $request = new Request(
-            $queryParams,
-            $postParams,
-            $cookieParams,
-            [],
-            [],
-            null,
-        );
-        $this->assertSame("queryValue1", $request->param("param1", "default"));
-        $this->assertSame("postValue2", $request->param("param2", "default"));
-        $this->assertSame("default", $request->param("param3", "default"));
-        $this->assertSame("queryValue4", $request->param("param4", "default"));
-        $this->assertSame("postValue5", $request->param("param5", "default"));
-        $this->assertSame("default", $request->param("param6", "default"));
-        $this->assertSame("default", $request->param("param7", "default"));
-    }
-
+    /**
+     * @throws Exception
+     */
     #[Test]
     public function itCanGetContentType(): void
     {
@@ -315,19 +339,24 @@ class RequestTest extends TestCase
             "CONTENT_TYPE" => "application/octet-stream",
         ];
 
-        $request = new Request([], [], [], [], $serverParams);
+        $request = new Request([], [], [], $serverParams, $this->createMock(PayloadHandlerInterface::class));
 
         $this->assertSame("application/octet-stream", $request->contentType());
     }
 
+    /**
+     * @throws Exception
+     */
     #[Test]
     public function itWontReturnAContextTypeIfNotSet(): void
     {
-        $request = new Request([], [], [], [], []);
-
+        $request = new Request([], [], [], [], $this->createMock(PayloadHandlerInterface::class));
         $this->assertNull($request->contentType());
     }
 
+    /**
+     * @throws Exception
+     */
     #[Test]
     public function itCanGetContentLength(): void
     {
@@ -335,19 +364,23 @@ class RequestTest extends TestCase
             "CONTENT_LENGTH" => "123",
         ];
 
-        $request = new Request([], [], [], [], $serverParams);
-
+        $request = new Request([], [], [], $serverParams, $this->createMock(PayloadHandlerInterface::class));
         $this->assertSame(123, $request->contentLength());
     }
 
+    /**
+     * @throws Exception
+     */
     #[Test]
     public function itWontReturnAContentLengthIfNotSet(): void
     {
-        $request = new Request([], [], [], [], []);
-
+        $request = new Request([], [], [], [], $this->createMock(PayloadHandlerInterface::class));
         $this->assertNull($request->contentLength());
     }
 
+    /**
+     * @throws Exception
+     */
     #[Test]
     public function itCanGetUploadedFiles(): void
     {
@@ -361,10 +394,13 @@ class RequestTest extends TestCase
             ],
         ];
 
-        $request = new Request([], [], [], $fileParams, [], null);
+        $request = new Request([], [], $fileParams, [], $this->createMock(PayloadHandlerInterface::class));
         $this->assertSame($fileParams, $request->uploadedFiles());
     }
 
+    /**
+     * @throws Exception
+     */
     #[Test]
     public function itCanGetSpecificUploadedFile(): void
     {
@@ -378,121 +414,95 @@ class RequestTest extends TestCase
             ],
         ];
 
-        $request = new Request([], [], [], $fileParams, [], null);
+        $request = new Request([], [], $fileParams, [], $this->createMock(PayloadHandlerInterface::class));
         $this->assertSame($fileParams["file1"], $request->uploadedFile("file1"));
         $this->assertNull($request->uploadedFile("file2"));
     }
 
+    /**
+     * @throws Exception
+     */
     #[Test]
-    public function itCanGetBodyWithFactoryFunction(): void
+    public function itCanFetchTheBody(): void
     {
-        $bodyFactory = function(): ?string {
-            return "This is the body";
-        };
+        $payload = $this->createMock(PayloadHandlerInterface::class);
+        $payload->expects($this->once())
+            ->method("body")
+            ->willReturn("This is the body")
+        ;
 
-        $request = new Request([], [], [], [], [], $bodyFactory);
+        $request = new Request([], [], [], [], $payload);
         $this->assertSame("This is the body", $request->body());
     }
 
+    /**
+     * @throws Exception
+     */
     #[Test]
-    public function itCanGetBodyWithFactoryClass(): void
+    public function itReturnsNullIForBodyIfPayloadReturnsNull(): void
     {
-        $bodyFactory = new class {
-            public function __invoke(): ?string {
-                return "This is the body";
-            }
-        };
+        $payload = $this->createMock(PayloadHandlerInterface::class);
 
-        $request = new Request([], [], [], [], [], $bodyFactory);
-        $this->assertSame("This is the body", $request->body());
-    }
-
-    #[Test]
-    public function itReturnsNullIForBodyIfFactoryReturnsNull(): void
-    {
-        $bodyFactory = function(): ?string {
-            return null;
-        };
-
-        $request = new Request([], [], [], [], [], $bodyFactory);
+        $request = new Request([], [], [], [], $payload);
         $this->assertNull($request->body());
-    }
-
-    #[Test]
-    public function itReturnsNullIfNoBodyFactoryProvided(): void
-    {
-        $request = new Request([], [], [], [], [], null);
-        $this->assertNull($request->body());
-    }
-
-    #[Test]
-    public function itWillThrowOnInvalidBodyFactoryType(): void
-    {
-        $bodyFactory = 12345;
-
-        $this->expectException(\TypeError::class);
-        // @phpstan-ignore argument.type
-        $request = new Request([], [], [], [], [], $bodyFactory);
-    }
-
-    #[Test]
-    public function itWillThrowOnNonCallableBodyFactoryClass(): void
-    {
-        $bodyFactory = new class {
-            public function toString(): ?string {
-                return "This is the body";
-            }
-        };
-
-        $this->expectException(\TypeError::class);
-        // @phpstan-ignore argument.type
-        $request = new Request([], [], [], [], [], $bodyFactory);
-    }
-
-    #[Test]
-    public function itCanGetStringLiteralBody(): void
-    {
-        $bodyFactory = "This is the body";
-
-        $request = new Request([], [], [], [], [], $bodyFactory);
-        $this->assertSame("This is the body", $request->body());
-    }
-
-    #[Test]
-    public function itCanGetStringalbeBody(): void
-    {
-        $bodyFactory = new class {
-            public function __toString(): string {
-                return "This is the body";
-            }
-        };
-
-        $request = new Request([], [], [], [], [], $bodyFactory);
-        $this->assertSame("This is the body", $request->body());
-    }
-
-    #[Test]
-    public function itUsesCallableInPriorityToStringableToGetTheBody(): void
-    {
-        $bodyFactory = new class implements Stringable{
-            public function __invoke(): ?string {
-                return "This is the body as generated by __invoke";
-            }
-
-            public function __tostring(): string {
-                return "This is the body as generated by __toString";
-            }
-        };
-
-        $request = new Request([], [], [], [], [], $bodyFactory);
-        $this->assertSame("This is the body as generated by __invoke", $request->body());
     }
 
     #[Test]
     public function itInstantiatesFromSuperGlobals(): void
     {
         $request = Request::fromSuperGlobals();
-        $this->assertInstanceOf(Request::class, $request);
+
         $this->assertSame(Request::class, get_class($request));
+        $this->assertNull($request->body());
+    }
+
+    /**
+     * @throws Exception
+     */
+    #[Test]
+    public function itInstantiatesFromSuperGlobalsWithPayloadHandler(): void
+    {
+        $payload = $this->createMock(PayloadHandlerInterface::class);
+        $payload
+            ->expects($this->once())
+            ->method("body")
+            ->willReturn(json_encode([
+                "foo" => 'bar',
+                "baz" => "quux",
+            ]))
+        ;
+
+        $request = Request::fromSuperGlobals($payload);
+
+        $this->assertSame(Request::class, get_class($request));
+        $this->assertSame('{"foo":"bar","baz":"quux"}', $request->body());
+    }
+
+    #[Test]
+    public function itCanBeCastToString(): void
+    {
+        $payloadHandler = $this->createMock(PayloadHandlerInterface::class);
+        $payloadHandler->method("body")->willReturn("This is the body");
+
+        $expectedRequest = "GET /foo/bar?baz=quux\n"
+            . "Header-1: Foo\n"
+            . "Header-2: Bar\n\n"
+            . "This is the body";
+
+        $request = new Request(
+            queryParams: [],
+            cookieParams: [],
+            fileParams: [],
+            serverParams: [
+                "REQUEST_URI" => "/foo/bar?baz=quux",
+                "REQUEST_METHOD" => "GET",
+                "HTTP_HEADER_1" => "Foo",
+                "HTTP_HEADER_2" => "Bar",
+            ],
+            payloadHandler: $payloadHandler,
+        );
+
+        // implicit __toString() call
+        $this->assertEquals($expectedRequest, $request);
     }
 }

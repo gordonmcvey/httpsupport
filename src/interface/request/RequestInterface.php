@@ -18,7 +18,7 @@
 
 declare(strict_types=1);
 
-namespace gordonmcvey\httpsupport;
+namespace gordonmcvey\httpsupport\interface\request;
 
 use gordonmcvey\httpsupport\enum\Verbs;
 
@@ -33,19 +33,23 @@ interface RequestInterface
 
     public function setHeader(string $name, mixed $value): self;
 
+    /**
+     * Return the content type of the request payload.  If the request doesn't have a payload then null is returned
+     */
     public function contentType(): ?string;
 
+    /**
+     * Return the length in bytes of the request payload.  If the request doesn't have a payload then null is returned
+     */
     public function contentLength(): ?int;
 
     public function verb(): Verbs;
 
     public function uri(): string;
 
-    public function param(string $name, mixed $default = null): mixed;
-
     public function queryParam(string $name, mixed $default = null): mixed;
 
-    public function postParam(string $name, mixed $default = null): mixed;
+    public function payloadParam(string $name, mixed $default = null): mixed;
 
     public function cookieParam(string $name, mixed $default = null): mixed;
 

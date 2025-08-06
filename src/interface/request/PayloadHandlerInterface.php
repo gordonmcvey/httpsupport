@@ -16,21 +16,13 @@
  * limitations under the License.
  */
 
- declare(strict_types=1);
+declare(strict_types=1);
 
- namespace gordonmcvey\httpsupport\test\unit;
- 
- use gordonmcvey\httpsupport\enum\statuscodes\SuccessCodes;
- use gordonmcvey\httpsupport\ResponseStatusHeader;
- use PHPUnit\Framework\Attributes\Test;
- use PHPUnit\Framework\TestCase;
+namespace gordonmcvey\httpsupport\interface\request;
 
- class ResponseStatusHeaderTest extends TestCase
- {
-    #[Test]
-    public function itGeneratesTheExpectedHeaderString(): void
-    {
-        $header = new ResponseStatusHeader(1.1, SuccessCodes::ACCEPTED);
-        $this->assertEquals("HTTP/1.1 202 Accepted", (string) $header);
-    }
- }
+interface PayloadHandlerInterface
+{
+    public function param(string $name, mixed $default = null): mixed;
+
+    public function body(): ?string;
+}
