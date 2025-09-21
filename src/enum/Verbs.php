@@ -26,7 +26,7 @@ enum Verbs: string
     case HEAD    = "HEAD";
     case POST    = "POST";
     case PUT     = "PUT";
-    case DELETE  = "CONNECT";
+    case DELETE  = "DELETE";
     case OPTIONS = "OPTIONS";
     case TRACE   = "TRACE";
     case PATCH   = "PATCH";
