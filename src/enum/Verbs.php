@@ -30,4 +30,5 @@ enum Verbs: string
     case OPTIONS = "OPTIONS";
     case TRACE   = "TRACE";
     case PATCH   = "PATCH";
+    case CONNECT = "CONNECT";
 }
