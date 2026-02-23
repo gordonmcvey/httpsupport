@@ -50,6 +50,11 @@ class ServerRequestAdaptor implements RequestInterface
 
     private ?string $body = null;
 
+    /**
+     * @var array<string, mixed>
+     */
+    private array $extraParams = [];
+
     public function __construct(private readonly ServerRequestInterface $originalRequest)
     {
     }
@@ -132,6 +137,20 @@ class ServerRequestAdaptor implements RequestInterface
         }
 
         return $this->serverParams[$name] ?? $default;
+    }
+
+    public function extraParam(string $name, mixed $default = null): mixed
+    {
+        return $this->extraParams[$name] ?? $default;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function setExtraParams(array $extraParams): self
+    {
+        $this->extraParams = $extraParams;
+        return $this;
     }
 
     /**

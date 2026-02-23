@@ -55,6 +55,13 @@ interface RequestInterface
 
     public function serverParam(string $name, mixed $default = null): mixed;
 
+    public function extraParam(string $name, mixed $default = null): mixed;
+
+    /**
+     * @param array<string, mixed> $extraParams
+     */
+    public function setExtraParams(array $extraParams): self;
+
     /**
      * @return array<string, array{
      *     name: string,

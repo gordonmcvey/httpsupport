@@ -329,6 +329,28 @@ class RequestTest extends TestCase
         $this->assertSame("bar", $request->serverParam("foo", "bar"));
     }
 
+    #[Test]
+    public function itCanGetExtraParams(): void
+    {
+        $extraParams = [
+            "foo" => "foo value",
+            "bar" => "bar value",
+        ];
+
+        $request = new Request([], [], [], [], $this->createMock(PayloadHandlerInterface::class));
+        $request->setExtraParams($extraParams);
+        $this->assertSame("foo value", $request->extraParam("foo"));
+        $this->assertSame("bar value", $request->extraParam("bar"));
+    }
+
+    #[Test]
+    public function itCanReturnDefaultValuesForUnsetExtraParams(): void
+    {
+        $request = new Request([], [], [], [], $this->createMock(PayloadHandlerInterface::class));
+        $this->assertSame("foo default value", $request->extraParam("foo", "foo default value"));
+        $this->assertNull($request->extraParam("bar"));
+    }
+
     /**
      * @throws Exception
      */

@@ -50,6 +50,11 @@ class Request implements RequestInterface, Stringable
     private ?Verbs $verb = null;
 
     /**
+     * @var array<string, mixed>
+     */
+    private array $extraParams = [];
+
+    /**
      * Class constructor
      *
      * @param array<string, mixed> $queryParams
@@ -139,6 +144,20 @@ class Request implements RequestInterface, Stringable
     public function serverParam(string $name, mixed $default = null): mixed
     {
         return $this->serverParams[$name] ?? $default;
+    }
+
+    public function extraParam(string $name, mixed $default = null): mixed
+    {
+        return $this->extraParams[$name] ?? $default;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function setExtraParams(array $extraParams): self
+    {
+        $this->extraParams = $extraParams;
+        return $this;
     }
 
     public function uploadedFiles(): array

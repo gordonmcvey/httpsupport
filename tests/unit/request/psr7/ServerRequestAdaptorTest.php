@@ -317,6 +317,28 @@ class ServerRequestAdaptorTest extends TestCase
         $this->assertNull($request->serverParam("foo"));
     }
 
+    #[Test]
+    public function itCanGetExtraParams(): void
+    {
+        $extraParams = [
+            "foo" => "foo value",
+            "bar" => "bar value",
+        ];
+
+        $request = new ServerRequestAdaptor($this->createMock(ServerRequestInterface::class));
+        $request->setExtraParams($extraParams);
+        $this->assertSame("foo value", $request->extraParam("foo"));
+        $this->assertSame("bar value", $request->extraParam("bar"));
+    }
+
+    #[Test]
+    public function itCanReturnDefaultValuesForUnsetExtraParams(): void
+    {
+        $request = new ServerRequestAdaptor($this->createMock(ServerRequestInterface::class));
+        $this->assertSame("foo default value", $request->extraParam("foo", "foo default value"));
+        $this->assertNull($request->extraParam("bar"));
+    }
+
     /**
      * @throws Exception
      */
